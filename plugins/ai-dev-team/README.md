@@ -19,13 +19,15 @@ A reusable AI software-development team for Claude Code: codebase analysis, proj
 
 Invoke directly as `/ai-dev-team:<skill-name>`, or describe the task in natural language and let Claude select the matching skill.
 
+There is an eleventh skill, `enforcing-safety-baseline`, that is infrastructure rather than a workflow: it's `user-invocable: false` (not meant to be run directly) and exists so every one of the ten skills above and all ten agents below can carry the same evidence/safety policy without duplicating it. See [Shared references](#shared-references).
+
 ## Agents
 
-`solution-architect`, `repository-explorer`, `frontend-engineer`, `backend-engineer`, `database-engineer`, `qa-engineer`, `security-reviewer`, `code-reviewer`, `debugger`, `release-manager` — role-scoped subagents used by `orchestrating-development-team` and available for direct delegation.
+`solution-architect`, `repository-explorer`, `frontend-engineer`, `backend-engineer`, `database-engineer`, `qa-engineer`, `security-reviewer`, `code-reviewer`, `debugger`, `release-manager` — role-scoped subagents, invoked as `ai-dev-team:<agent-name>` to disambiguate from any same-named agent another installed plugin or the project/user might define. Used by `orchestrating-development-team` and available for direct delegation. Each agent preloads `enforcing-safety-baseline` at startup (a subagent's context starts fresh and does not inherit anything from a parent skill) and can invoke its mapped workflow skill via the Skill tool on demand — see [docs/architecture/token-efficiency.md](../../docs/architecture/token-efficiency.md#agent-context-and-the-safety-baseline) for why.
 
 ## Shared references
 
-`references/evidence-and-safety.md`, `references/stack-detection.md`, and `references/context-recovery.md` hold policy shared across skills (evidence discipline, irreversible-action confirmation, stack detection patterns, context-recovery priority order) so individual `SKILL.md` files stay short and consistent.
+`references/stack-detection.md` and `references/context-recovery.md` hold policy shared across skills (stack detection patterns, context-recovery priority order) so individual `SKILL.md` files stay short and consistent. The evidence/safety policy lives at `skills/enforcing-safety-baseline/SKILL.md` instead — a skill, not a reference file, specifically so it can be preloaded into every agent's context, not just linked from skill bodies.
 
 ## Local development
 

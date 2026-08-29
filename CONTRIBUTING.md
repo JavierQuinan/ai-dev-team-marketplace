@@ -31,13 +31,13 @@ Inside a session started with `--plugin-dir`, exercise the skill directly (`/ai-
 Every `SKILL.md` in this repository must:
 
 - Live at `plugins/ai-dev-team/skills/<skill-name>/SKILL.md`, where `<skill-name>` is lowercase, kebab-case, and verb-first where possible (matches the pattern of the existing ten: `analyzing-codebase`, `implementing-features`, ...).
-- Have YAML frontmatter with at minimum `description`: third person, states what the skill does and when to use it, includes concrete trigger phrasing. Avoid vague descriptions ("helps with X").
+- Have YAML frontmatter with `name` **equal to the directory name** and `description`: third person, states what the skill does and when to use it, includes concrete trigger phrasing. Avoid vague descriptions ("helps with X"). `name` is optional per the Claude Code spec (it falls back to the directory name), but this repo requires it explicitly and requires it to match, because a plugin skill's frontmatter `name` silently overrides the invocation command's last segment — an unnoticed mismatch would ship a skill under a different command than its directory suggests. `scripts/validate.py` enforces this; see [Frontmatter validation](docs/architecture/token-efficiency.md#frontmatter-validation-what-this-repos-validator-does-and-does-not-check) for exactly what is and isn't checked.
 - Stay under ~250 lines. Move detail to `references/`, `templates/`, or `scripts/` inside the skill's own directory, or to the plugin-level `references/` if the content is shared across skills.
-- Not duplicate policy already covered by `plugins/ai-dev-team/references/evidence-and-safety.md`, `references/stack-detection.md`, or `references/context-recovery.md` — link to them instead.
+- Not duplicate policy already covered by `plugins/ai-dev-team/references/stack-detection.md` or `references/context-recovery.md` — link to them instead. Not duplicate the evidence/safety policy either — link to [`enforcing-safety-baseline`](plugins/ai-dev-team/skills/enforcing-safety-baseline/SKILL.md) instead, the way all ten workflow skills already do.
 - Include a "Workflow" section, a "Decisions" section (how to handle the realistic edge cases), and an "Exit criteria" section (how to know the skill's job is actually done, backed by evidence — not by a claim).
 - Never encode a specific private project's domain, naming, or infrastructure — this repository is consumed by unrelated projects and must stay generic.
 
-See [docs/architecture/token-efficiency.md](docs/architecture/token-efficiency.md) for the full rationale behind these constraints.
+See [docs/architecture/token-efficiency.md](docs/architecture/token-efficiency.md) for the full rationale behind these constraints, and run `claude plugin validate ./plugins/ai-dev-team` (installed via `npm install -g @anthropic-ai/claude-code`, no credentials required) before relying solely on `scripts/validate.py` — the official CLI is the schema authority; this repo's validator only checks invariants the official CLI doesn't (see below).
 
 ## Evals are required
 

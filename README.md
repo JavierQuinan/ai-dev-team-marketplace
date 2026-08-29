@@ -23,11 +23,17 @@ The marketplace is designed to hold more than one plugin over time (see [ROADMAP
 
 ## What's in `ai-dev-team` v0.1.0
 
-**10 skills**, each a clearly-scoped responsibility rather than a framework-specific clone:
+**10 user-facing skills**, each a clearly-scoped responsibility rather than a framework-specific clone:
 
 `continuing-project-work` · `orchestrating-development-team` · `analyzing-codebase` · `planning-implementation` · `implementing-features` · `debugging-systematically` · `testing-with-playwright` · `reviewing-code` · `auditing-security` · `preparing-releases`
 
-**10 agents** for role-scoped delegation: `solution-architect`, `repository-explorer`, `frontend-engineer`, `backend-engineer`, `database-engineer`, `qa-engineer`, `security-reviewer`, `code-reviewer`, `debugger`, `release-manager`.
+Plus one internal, non-user-invocable skill, `enforcing-safety-baseline`, that carries the shared evidence/safety policy and is preloaded into every agent below (see [Agent safety model](#agent-safety-model)).
+
+**10 agents** for role-scoped delegation, invoked as `ai-dev-team:<agent-name>`: `solution-architect`, `repository-explorer`, `frontend-engineer`, `backend-engineer`, `database-engineer`, `qa-engineer`, `security-reviewer`, `code-reviewer`, `debugger`, `release-manager`.
+
+### Agent safety model
+
+A Claude Code subagent starts with a fresh, isolated context window — it does not inherit anything from a parent skill, including safety/evidence discipline. So every `ai-dev-team` agent explicitly preloads the small `enforcing-safety-baseline` skill via its own `skills:` frontmatter field, guaranteeing the same evidence rule, irreversible-action confirmation, secret hygiene, and least-privilege discipline whether the agent is reached through `orchestrating-development-team` or invoked directly. Each agent also gets `Skill`-tool access and a pointer to its one mapped workflow skill (e.g. `backend-engineer` → `implementing-features`), pulled in on demand rather than preloaded in full, so a trivial delegation doesn't pay for a workflow it doesn't need. Full reasoning: [docs/architecture/token-efficiency.md](docs/architecture/token-efficiency.md#agent-context-and-the-safety-baseline).
 
 Full descriptions: [plugins/ai-dev-team/README.md](plugins/ai-dev-team/README.md).
 

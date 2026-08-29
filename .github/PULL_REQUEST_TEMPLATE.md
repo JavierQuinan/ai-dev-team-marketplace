@@ -14,14 +14,16 @@
 ## Validation
 
 - [ ] `python scripts/validate.py` passes locally
-- [ ] Tested locally with `claude --plugin-dir ./plugins/ai-dev-team`
+- [ ] `claude plugin validate .` and `claude plugin validate ./plugins/<plugin>` pass locally (`npm install -g @anthropic-ai/claude-code`, no credentials required)
+- [ ] Tested locally with `claude --plugin-dir ./plugins/<plugin>`
 - [ ] New/changed skill has at least 3 evals in `tests/evals/`
+- [ ] New/changed agent still preloads `enforcing-safety-baseline` (or the equivalent for a new plugin) if it's meant to be directly invocable
 
 ## Security
 
 - [ ] No secrets, tokens, or real credentials included
 - [ ] No hardcoded reference to a specific private project or client
-- [ ] Any irreversible-action guidance still routes through the shared confirmation policy (`references/evidence-and-safety.md`)
+- [ ] Any irreversible-action guidance still routes through the shared confirmation policy (`plugins/ai-dev-team/skills/enforcing-safety-baseline/SKILL.md`), reachable by direct invocation, not only via `orchestrating-development-team`
 
 ## Reviewer checklist
 

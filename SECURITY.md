@@ -33,6 +33,6 @@ Out of scope: vulnerabilities in Claude Code itself (report those to Anthropic, 
 
 ## What this project does to reduce risk by default
 
-- Every skill links to a shared evidence-and-safety policy (`plugins/ai-dev-team/references/evidence-and-safety.md`) requiring explicit confirmation before irreversible actions (force-push, hard reset, destructive migrations, production deploys, merges, secret rotation).
+- Every skill links to, and every agent preloads, a shared evidence-and-safety policy (`plugins/ai-dev-team/skills/enforcing-safety-baseline/SKILL.md`) requiring explicit confirmation before irreversible actions (force-push, hard reset, destructive migrations, production deploys, merges, secret rotation). It's preloaded rather than just referenced because a subagent's context starts fresh and does not inherit anything a parent skill loaded — see [docs/architecture/token-efficiency.md](docs/architecture/token-efficiency.md#agent-context-and-the-safety-baseline).
 - No skill or script in this repository is designed to print, log, or transmit secret values.
-- `scripts/validate.py` runs in CI on every PR and push to `main` to catch structural regressions before they reach users.
+- `scripts/validate.py` and `claude plugin validate` both run in CI on every PR and push to `main` to catch structural regressions before they reach users.

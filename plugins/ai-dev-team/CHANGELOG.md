@@ -6,6 +6,6 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); version
 
 ### Added
 
-- Ten foundational skills covering project continuity, orchestration, codebase analysis, planning, implementation, debugging, Playwright E2E testing, code review, security auditing, and release preparation.
-- Ten specialized agents for delegated, role-scoped execution.
-- Shared references for evidence/safety policy, stack detection, and context recovery, to keep skill bodies small and consistent.
+- Ten user-facing skills covering project continuity, orchestration, codebase analysis, planning, implementation, debugging, Playwright E2E testing, code review, security auditing, and release preparation, plus one internal `enforcing-safety-baseline` skill.
+- Ten specialized agents for delegated, role-scoped execution, each preloading the safety baseline and holding `Skill`-tool access to its mapped workflow skill.
+- Shared references for stack detection and context recovery, to keep skill bodies small and consistent. The evidence/safety policy lives in the preloadable `enforcing-safety-baseline` skill instead of a reference file — see [docs/adr/0002-agent-safety-baseline.md](../../docs/adr/0002-agent-safety-baseline.md).

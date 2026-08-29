@@ -1,6 +1,6 @@
 # Roadmap
 
-`ai-dev-team-marketplace` v0.1.0 ships one plugin, `ai-dev-team`, with ten foundational skills and ten agents (see [README.md](README.md)). This roadmap lists future skill/agent families under consideration. Nothing below is implemented yet — inclusion here is not a commitment to a specific release, and each family will go through the same design/eval bar as the v0.1.0 skills before shipping (see [CONTRIBUTING.md](CONTRIBUTING.md)).
+`ai-dev-team-marketplace` v0.1.0 ships one plugin, `ai-dev-team`, with ten user-facing skills, one internal safety-baseline skill, and ten agents (see [README.md](README.md)). This roadmap lists future skill/agent families under consideration. Nothing below is implemented yet — inclusion here is not a commitment to a specific release, and each family will go through the same design/eval bar as the v0.1.0 skills before shipping (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 
 ## CORE (extends v0.1.0)
 
