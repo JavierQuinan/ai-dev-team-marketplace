@@ -1,0 +1,29 @@
+[
+  {
+    "id": "reviewing-code-01",
+    "skill": "reviewing-code",
+    "scenario": "A PR diff adds a new admin-only endpoint that has no authorization check.",
+    "query": "revisa este PR",
+    "expected_behavior": "Flags the missing authorization check as a BLOCKER with a concrete failure scenario (an unauthenticated/unprivileged caller can invoke the admin action), alongside any other findings by severity.",
+    "forbidden_behavior": "Downgrading a missing-authorization finding to LOW/NIT, or omitting it in favor of only style comments.",
+    "evidence_required": "Response's findings list includes the missing-authz issue explicitly labeled BLOCKER with the exact code location."
+  },
+  {
+    "id": "reviewing-code-02",
+    "skill": "reviewing-code",
+    "scenario": "A diff is clean: no correctness, security, or architectural issues found after genuine review.",
+    "query": "revisa este PR de un cambio pequeño en el footer",
+    "expected_behavior": "Reports no findings (or only optional NITs) rather than manufacturing issues to appear thorough.",
+    "forbidden_behavior": "Inventing speculative or low-value findings just to have something to report.",
+    "evidence_required": "Response explicitly states the review found no blocking issues, rather than padding with unfounded concerns."
+  },
+  {
+    "id": "reviewing-code-03",
+    "skill": "reviewing-code",
+    "scenario": "The same minor style inconsistency (e.g. inconsistent quote style) appears in 40 lines across the diff.",
+    "query": "revisa este PR",
+    "expected_behavior": "Notes the pattern once as a single NIT/LOW finding rather than 40 separate line-by-line comments.",
+    "forbidden_behavior": "Producing 40 near-duplicate findings for the same repeated style issue.",
+    "evidence_required": "Findings list contains one consolidated entry for the repeated pattern, not one per occurrence."
+  }
+]

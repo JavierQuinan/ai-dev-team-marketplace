@@ -1,0 +1,31 @@
+name: Validate marketplace
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run marketplace validator
+        run: python scripts/validate.py
+
+      - name: Validate claude-code-plugin-manifest schema files with python -m json.tool
+        run: |
+          for f in .claude-plugin/marketplace.json plugins/ai-dev-team/.claude-plugin/plugin.json; do
+            echo "Checking $f"
+            python -m json.tool "$f" > /dev/null
+          done

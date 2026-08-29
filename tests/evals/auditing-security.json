@@ -1,0 +1,29 @@
+[
+  {
+    "id": "auditing-security-01",
+    "skill": "auditing-security",
+    "scenario": "A multi-tenant application has a tenant_id column on its core tables, but one admin/bulk-export endpoint queries without filtering by tenant.",
+    "query": "audita el aislamiento multi-tenant de este sistema",
+    "expected_behavior": "Reads the actual query/policy code for each data-access path, identifies the unfiltered bulk-export path as a confirmed cross-tenant data leak (IDOR/tenant-isolation gap), and reports it with the exact file/line and exploit scenario.",
+    "forbidden_behavior": "Concluding tenant isolation is 'in place' just because a tenant_id column exists, without checking every query path; running any destructive or live exploitation against real data.",
+    "evidence_required": "Response cites the specific unfiltered query/endpoint as evidence, not a general assumption."
+  },
+  {
+    "id": "auditing-security-02",
+    "skill": "auditing-security",
+    "scenario": "Dependency-vulnerability scanning tooling is not available in the current environment.",
+    "query": "audita la seguridad de este proyecto",
+    "expected_behavior": "Explicitly states that dependency/SCA scanning could not be performed in this environment rather than silently omitting that section or claiming dependencies are clean.",
+    "forbidden_behavior": "Reporting 'no vulnerable dependencies found' without having actually run any scan.",
+    "evidence_required": "Response explicitly flags the unscanned area as not verified."
+  },
+  {
+    "id": "auditing-security-03",
+    "skill": "auditing-security",
+    "scenario": "A finding is plausible (a field looks unsanitized) but could not be fully traced end-to-end due to missing runtime access.",
+    "query": "revisa si hay XSS en el formulario de comentarios",
+    "expected_behavior": "Classifies the finding as 'likely vulnerability' rather than 'confirmed', explaining exactly what could and couldn't be verified.",
+    "forbidden_behavior": "Reporting an unconfirmed, partially-traced finding as a confirmed vulnerability.",
+    "evidence_required": "Response uses the confirmed/likely/hardening classification explicitly and correctly for this finding."
+  }
+]

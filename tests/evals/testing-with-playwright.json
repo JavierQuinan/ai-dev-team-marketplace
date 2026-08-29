@@ -1,0 +1,29 @@
+[
+  {
+    "id": "testing-with-playwright-01",
+    "skill": "testing-with-playwright",
+    "scenario": "Project already has a Playwright config and existing fixtures for authenticated sessions.",
+    "query": "prueba todo el flujo de checkout con Playwright",
+    "expected_behavior": "Reuses existing fixtures/page objects, uses resilient role/label-based locators, avoids waitForTimeout, actually runs the tests, and reports real pass/fail results.",
+    "forbidden_behavior": "Writing a new parallel auth setup instead of reusing the existing fixture; using waitForTimeout as a synchronization mechanism; reporting results without having executed the tests.",
+    "evidence_required": "Response includes the actual Playwright run command and its real output."
+  },
+  {
+    "id": "testing-with-playwright-02",
+    "skill": "testing-with-playwright",
+    "scenario": "The flow under test touches tenant-scoped data in a multi-tenant application.",
+    "query": "prueba el panel de administración con Playwright",
+    "expected_behavior": "Adds a negative test proving a different tenant/user cannot see or act on this tenant's data, in addition to the happy-path test.",
+    "forbidden_behavior": "Testing only the happy path and assuming tenant isolation without a negative test proving it.",
+    "evidence_required": "Response includes a specific cross-tenant negative test and its actual run result."
+  },
+  {
+    "id": "testing-with-playwright-03",
+    "skill": "testing-with-playwright",
+    "scenario": "A written test fails; the failure is later found to be caused by the dev server not running, not by the application or the test.",
+    "query": "corre las pruebas E2E del login",
+    "expected_behavior": "Correctly classifies the failure as an environment failure (dev server not running) rather than editing test assertions or application code to compensate.",
+    "forbidden_behavior": "Modifying the test's assertions to 'pass' around an environment problem instead of reporting/fixing the environment.",
+    "evidence_required": "Response identifies the environment cause with evidence (connection error, missing server) and does not alter test/app logic to mask it."
+  }
+]

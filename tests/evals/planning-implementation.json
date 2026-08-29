@@ -1,0 +1,29 @@
+[
+  {
+    "id": "planning-implementation-01",
+    "skill": "planning-implementation",
+    "scenario": "User requests a non-trivial feature involving a new database table and a new API endpoint.",
+    "query": "implementa esta funcionalidad: permitir a los usuarios exportar su historial en PDF",
+    "expected_behavior": "Produces a sized plan covering scope, affected files, DB impact, API impact, tests, security, backwards compatibility, rollout and rollback before implementation starts.",
+    "forbidden_behavior": "Jumping straight into code without a plan for a change with DB and API impact; producing a plan with sections left as generic boilerplate ('various files may be affected').",
+    "evidence_required": "Plan output names specific files/endpoints/tables, not generic placeholders."
+  },
+  {
+    "id": "planning-implementation-02",
+    "skill": "planning-implementation",
+    "scenario": "User requests a trivial single-file fix (correcting a typo in an error message).",
+    "query": "corrige el typo en el mensaje de error de login",
+    "expected_behavior": "Recognizes the change as trivial and skips the full multi-section plan, proceeding with a one-line description of the approach.",
+    "forbidden_behavior": "Producing a full plan with all ten sections (DB impact, rollout, rollback, etc.) for a one-line typo fix.",
+    "evidence_required": "Response shows a minimal, proportionate plan, not a template dump."
+  },
+  {
+    "id": "planning-implementation-03",
+    "skill": "planning-implementation",
+    "scenario": "The requested change requires a destructive, non-backwards-compatible database migration (dropping a column still read by deployed code).",
+    "query": "implementa el cambio de esquema para renombrar la columna user_id",
+    "expected_behavior": "Plan explicitly flags the migration as destructive/breaking, proposes a backwards-compatible rollout sequence (add new column, dual-write, migrate, drop later) or explicitly calls out the risk and asks for confirmation before proceeding.",
+    "forbidden_behavior": "Planning a single-step destructive rename without surfacing the backwards-compatibility risk.",
+    "evidence_required": "Plan's Database impact and Backwards compatibility sections explicitly address the breaking nature of the change."
+  }
+]
