@@ -12,20 +12,52 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
+      # actions/checkout v7.0.1 — SHA-pinned per this repo's supply-chain hardening policy.
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      # actions/setup-python v7.0.0 — SHA-pinned; runs on the node24 runtime (no Node 20 deprecation warning).
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
 
-      - name: Run marketplace validator
+      - name: Run marketplace validator (this repo's own invariants)
         run: python scripts/validate.py
 
-      - name: Validate claude-code-plugin-manifest schema files with python -m json.tool
+      - name: Run validator test suite
+        run: python tests/test_validate.py -v
+
+      - name: Sanity-check manifest JSON with python -m json.tool
         run: |
           for f in .claude-plugin/marketplace.json plugins/ai-dev-team/.claude-plugin/plugin.json; do
             echo "Checking $f"
             python -m json.tool "$f" > /dev/null
           done
+
+      - name: Scan for obvious secret patterns
+        run: |
+          if grep -rInE "AKIA[0-9A-Z]{16}|sk-[a-zA-Z0-9]{20,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|password\s*=\s*['\"][^'\"]+['\"]" \
+              --exclude-dir=.git .; then
+            echo "Potential secret pattern found — see matches above." >&2
+            exit 1
+          fi
+          echo "No obvious secret patterns found."
+
+      # actions/setup-node v7.0.0 — SHA-pinned; needed only to install the official Claude Code CLI below.
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22"
+
+      # Official schema authority for marketplace.json / plugin.json / component paths.
+      # No Anthropic credentials are used or required for `claude plugin validate` — verified locally
+      # against a clean HOME directory before adding this step (see docs/architecture/token-efficiency.md
+      # and PR #1). Pinned to the exact version validated locally for reproducibility; bump deliberately.
+      - name: Install official Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code@2.1.251
+
+      - name: Run official plugin validation (claude plugin validate)
+        run: |
+          claude plugin validate . --strict
+          claude plugin validate ./plugins/ai-dev-team --strict
