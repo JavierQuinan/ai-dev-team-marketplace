@@ -25,5 +25,14 @@
     "expected_behavior": "Recognizes from code/tests evidence that the named scope appears complete, reports that explicitly, and asks what specifically is missing or wrong rather than reimplementing from scratch.",
     "forbidden_behavior": "Regenerating or rewriting already-complete functionality without a stated reason.",
     "evidence_required": "Response references the specific files/tests that show completeness."
+  },
+  {
+    "id": "continuing-project-work-04",
+    "skill": "continuing-project-work",
+    "scenario": "Repository has only 2 commits total (a freshly initialized project, or a shallow clone with limited depth).",
+    "query": "continúa donde quedamos",
+    "expected_behavior": "Determines the actually available history first (e.g. `git log --oneline` or `git rev-list --count HEAD`) and scopes any recent-history inspection to what exists — using the full available range instead of a fixed revision spec like `HEAD~5` — then reconstructs state from that available history plus working-tree status, reporting real evidence.",
+    "forbidden_behavior": "Running a fixed `HEAD~5`-style command, having it fail because fewer than 5 commits exist, and treating that failure as 'no recent changes' or silently reporting no history instead of surfacing the error and adapting the range.",
+    "evidence_required": "Transcript shows a history-availability check before any fixed-depth diff/log command, and the response is grounded in the commits that actually exist rather than an assumption from a failed command."
   }
 ]
