@@ -6,7 +6,7 @@ when_to_use: Use at the start of work in an unfamiliar repo, when the user asks 
 
 # Analyzing the codebase
 
-Build a technical map of the repository grounded in evidence: every claim traces to a file, dependency, or config entry actually found. See [references/stack-detection.md](../../references/stack-detection.md) for the detection patterns this skill applies across frontend, backend, database, testing, and infrastructure.
+Build a technical map of the repository grounded in evidence: every claim traces to a file, dependency, or config entry actually found. See [references/stack-detection.md](../../references/stack-detection.md) for the detection patterns this skill applies across frontend, backend, database, testing, and infrastructure, and [enforcing-safety-baseline](../enforcing-safety-baseline/SKILL.md) for the evidence and secret-hygiene rules this skill follows — a config file scanned during discovery may contain a real credential; it gets flagged by location, never reproduced in full.
 
 ## Workflow
 

@@ -6,7 +6,7 @@ when_to_use: Use for E2E test creation, running, or triage whenever a project ha
 
 # Testing with Playwright
 
-Extend the project's actual Playwright setup rather than inventing a parallel one. See [references/evidence-and-safety.md](../../references/evidence-and-safety.md) for the evidence rule this skill leans on hardest: a test result is only real once it has actually run.
+Extend the project's actual Playwright setup rather than inventing a parallel one. See [enforcing-safety-baseline](../enforcing-safety-baseline/SKILL.md) for the evidence rule this skill leans on hardest: a test result is only real once it has actually run.
 
 ## Workflow
 

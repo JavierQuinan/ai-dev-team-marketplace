@@ -6,7 +6,7 @@ when_to_use: Use for the REVIEW stage of a change, or whenever asked to "review 
 
 # Reviewing code
 
-Review with the goal of catching real defects, not generating volume. A review full of nitpicks buries the finding that matters.
+Review with the goal of catching real defects, not generating volume. A review full of nitpicks buries the finding that matters. See [enforcing-safety-baseline](../enforcing-safety-baseline/SKILL.md) — a finding is reported confirmed only once actually verified against the code, and a secret spotted in a diff is flagged by location, never quoted in full.
 
 ## What to check
 

@@ -6,7 +6,7 @@ when_to_use: Use before a release, deploy, or when asked "deja esto listo para p
 
 # Preparing releases
 
-Produce a release-readiness verdict backed by checks actually run in this session — never assert readiness from inspection alone. See [references/evidence-and-safety.md](../../references/evidence-and-safety.md): deploying to production always requires explicit human confirmation, this skill prepares and verifies, it does not deploy.
+Produce a release-readiness verdict backed by checks actually run in this session — never assert readiness from inspection alone. See [enforcing-safety-baseline](../enforcing-safety-baseline/SKILL.md): deploying to production always requires explicit human confirmation, this skill prepares and verifies, it does not deploy.
 
 ## Checklist
 

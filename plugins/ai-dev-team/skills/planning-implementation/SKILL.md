@@ -32,7 +32,7 @@ Turn a request into a plan sized to the actual change — not a template filled 
 ## Decisions
 
 - Request is vague about behavior in an edge case that changes design → ask, don't assume, before planning further.
-- Plan would require a destructive migration or breaking API change → flag explicitly and note it needs explicit confirmation before execution (see [references/evidence-and-safety.md](../../references/evidence-and-safety.md)).
+- Plan would require a destructive migration or breaking API change → flag explicitly and note it needs explicit confirmation before execution (see [enforcing-safety-baseline](../enforcing-safety-baseline/SKILL.md)).
 - Change is trivial → do not produce a multi-section plan; a one-line description of the approach is the plan.
 
 ## Exit criteria

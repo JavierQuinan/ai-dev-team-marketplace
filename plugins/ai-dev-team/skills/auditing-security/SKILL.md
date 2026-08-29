@@ -6,7 +6,7 @@ when_to_use: Use for security-focused review, before releases touching auth/data
 
 # Auditing security
 
-Analyze for real, evidenced risk — never run destructive or intrusive tests against systems you don't have explicit authorization to test that way. See [references/evidence-and-safety.md](../../references/evidence-and-safety.md) for the shared safety policy this skill enforces most strictly.
+Analyze for real, evidenced risk — never run destructive or intrusive tests against systems you don't have explicit authorization to test that way. See [enforcing-safety-baseline](../enforcing-safety-baseline/SKILL.md) for the shared safety policy this skill enforces most strictly.
 
 ## Areas to analyze (as applicable to the code in scope)
 

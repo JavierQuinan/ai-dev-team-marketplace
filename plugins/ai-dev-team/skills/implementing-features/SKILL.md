@@ -6,7 +6,7 @@ when_to_use: Use for the IMPLEMENT stage of any change once scope is understood 
 
 # Implementing features
 
-Write the change against the codebase as it actually is, not a rewritten version of it. See [references/evidence-and-safety.md](../../references/evidence-and-safety.md) — nothing here is reported done without having just verified it.
+Write the change against the codebase as it actually is, not a rewritten version of it. See [enforcing-safety-baseline](../enforcing-safety-baseline/SKILL.md) — nothing here is reported done without having just verified it.
 
 ## Workflow
 

@@ -6,7 +6,7 @@ when_to_use: Trigger phrases include "continúa", "sigue con", "retoma", "contin
 
 # Continuing project work
 
-Reconstruct project state from verifiable evidence, then resume the implied work. Never rely on conversational memory alone — code and git are authoritative. See [references/context-recovery.md](../../references/context-recovery.md) for the full priority order and rules this skill follows, and [references/evidence-and-safety.md](../../references/evidence-and-safety.md) for the evidence and confirmation policy shared by every skill in this plugin.
+Reconstruct project state from verifiable evidence, then resume the implied work. Never rely on conversational memory alone — code and git are authoritative. See [references/context-recovery.md](../../references/context-recovery.md) for the full priority order and rules this skill follows, and [enforcing-safety-baseline](../enforcing-safety-baseline/SKILL.md) for the evidence and confirmation policy shared by every skill in this plugin.
 
 ## When to activate
 
@@ -18,7 +18,7 @@ Reconstruct project state from verifiable evidence, then resume the implied work
 
 1. **Scope the request.** Identify what the user pointed at (a module name, "the frontend", "the last PR", or nothing specific). If nothing specific, the scope is "the most recently active work."
 2. **Gather evidence**, following the priority order in `context-recovery.md`:
-   - `git status --porcelain`, `git branch --show-current`, `git log -20 --oneline`, `git diff` / `git diff --stat HEAD~5`, `git stash list`.
+   - `git status --porcelain`, `git branch --show-current`, `git log -20 --oneline` (which naturally caps at however many commits exist — a 2-commit repo just returns 2), `git diff`, `git stash list`. Before using a fixed-depth command like `git diff HEAD~5`, confirm that much history exists (`git rev-list --count HEAD`); see [references/context-recovery.md](../../references/context-recovery.md#small-repo-and-shallow-clone-tolerance) for the fallback when it doesn't.
    - `CLAUDE.md`, `AGENTS.md`, `README.md`, `docs/`, `CHANGELOG.md` if present.
    - Files/directories matching the named scope (search by name, not by guessing).
    - Test files and their last known pass/fail state (run the relevant subset if cheap; don't assume from file presence alone).

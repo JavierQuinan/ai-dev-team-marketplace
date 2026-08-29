@@ -6,7 +6,7 @@ when_to_use: Use whenever behavior contradicts expectation and the cause isn't a
 
 # Debugging systematically
 
-Find the actual cause before changing code. A fix applied without a confirmed cause is a guess that may reappear or mask the real problem.
+Find the actual cause before changing code. A fix applied without a confirmed cause is a guess that may reappear or mask the real problem. See [enforcing-safety-baseline](../enforcing-safety-baseline/SKILL.md) — an environment-repair step (e.g. resetting local state to isolate a failure) still requires confirmation before anything irreversible, and a fix is never reported working without having just re-verified it.
 
 ## Workflow
 
