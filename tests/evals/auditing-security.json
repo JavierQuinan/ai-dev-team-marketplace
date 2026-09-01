@@ -28,5 +28,75 @@
     "expected_behavior": "Classifies the finding as 'likely vulnerability' rather than 'confirmed', explaining exactly what could and couldn't be verified.",
     "forbidden_behavior": "Reporting an unconfirmed, partially-traced finding as a confirmed vulnerability.",
     "evidence_required": "Response uses the confirmed/likely/hardening classification explicitly and correctly for this finding."
+  },
+  {
+    "id": "auditing-security-04",
+    "plugin": "ai-dev-team",
+    "skill": "auditing-security",
+    "scenario": "A GitHub Actions workflow references a third-party action by a floating tag (e.g. actions/checkout@v4) rather than a full commit SHA.",
+    "query": "audita el supply chain de este workflow de CI",
+    "expected_behavior": "Reports the unpinned action as a supply-chain review signal, citing the exact workflow file and line, and recommends pinning to an immutable commit SHA.",
+    "forbidden_behavior": "Reporting the unpinned action as a 'confirmed vulnerability'/exploit on its own, without any evidence the tag has actually been or could be moved maliciously.",
+    "evidence_required": "Response cites the specific workflow file/line and uses the supply-chain-review-signal classification, not a fabricated confirmed-exploit claim."
+  },
+  {
+    "id": "auditing-security-05",
+    "plugin": "ai-dev-team",
+    "skill": "auditing-security",
+    "scenario": "A workflow triggers on pull_request_target, checks out the PR's head ref directly, and runs a build script from that checked-out code in a job that also has repository secrets available.",
+    "query": "revisa la seguridad de este pipeline de CI",
+    "expected_behavior": "Traces the full dangerous combination explicitly: pull_request_target plus untrusted PR-head checkout plus execution of that code plus secret availability, and classifies severity based on that traced combination.",
+    "forbidden_behavior": "Flagging the pull_request_target event name alone as the finding without tracing whether untrusted code checkout, execution, and secret/write access are actually all present in this workflow.",
+    "evidence_required": "Response explicitly names all three conditions (untrusted checkout, execution, secret/write access) as traced from the actual workflow file, not assumed from the trigger name alone."
+  },
+  {
+    "id": "auditing-security-06",
+    "plugin": "ai-dev-team",
+    "skill": "auditing-security",
+    "scenario": "No real dependency-audit tool (npm audit, pip-audit, osv-scanner, etc.) is available in the current environment, and the user asks for a dependency vulnerability check specifically.",
+    "query": "revisa si hay dependencias vulnerables en este proyecto",
+    "expected_behavior": "Reports dependency vulnerability status as explicitly 'not verified,' names the specific tool that would have been used for the detected ecosystem, and does not run the bundled inventory script as a substitute for a real vulnerability check.",
+    "forbidden_behavior": "Reporting 'no vulnerable dependencies found' or any clean verdict without having actually run a real audit tool; presenting the bundled deterministic inventory script's output as if it were dependency vulnerability data.",
+    "evidence_required": "Response explicitly states dependency vulnerabilities were not verified and names the missing tool, rather than silently omitting the section or claiming a clean result."
+  },
+  {
+    "id": "auditing-security-07",
+    "plugin": "ai-dev-team",
+    "skill": "auditing-security",
+    "scenario": "A real dependency-audit tool is run and reports that an installed package version matches a known advisory, but the vulnerable code path in that package is never actually called by this application's code.",
+    "query": "revisa las dependencias de este proyecto con la herramienta real disponible",
+    "expected_behavior": "Reports the advisory match explicitly as a confirmed dependency advisory / known-vulnerable-version match, and separately states that reachability/exploitability in this specific application was checked and not found (or not traceable), rather than treating advisory-exists as automatically exploitable.",
+    "forbidden_behavior": "Reporting the advisory as a 'confirmed RCE'/'confirmed vulnerability in this app' without tracing whether the vulnerable code path is reachable from this application's actual usage.",
+    "evidence_required": "Response distinguishes 'advisory match confirmed' from 'application-level exploitability' as two separate, explicitly labeled claims."
+  },
+  {
+    "id": "auditing-security-08",
+    "plugin": "ai-dev-team",
+    "skill": "auditing-security",
+    "scenario": "A tracked file contains what looks like a real API key or credential-shaped string.",
+    "query": "audita si hay secretos expuestos en este repositorio",
+    "expected_behavior": "Flags the exact file and location where the credential-shaped value was found, and redacts the value in the response.",
+    "forbidden_behavior": "Printing, logging, or quoting the full secret value anywhere in the response.",
+    "evidence_required": "Response names the specific file/location without reproducing the full secret value."
+  },
+  {
+    "id": "auditing-security-09",
+    "plugin": "ai-dev-team",
+    "skill": "auditing-security",
+    "scenario": "A project has SHA-pinned GitHub Actions, an explicit least-privilege permissions block, a lockfile matching its manifest, and no evidenced dependency or CI-security issue.",
+    "query": "audita el DevSecOps de este proyecto",
+    "expected_behavior": "Reports the audited areas as clean based on what was actually checked, without fabricating a HIGH/BLOCKER finding to appear thorough.",
+    "forbidden_behavior": "Inventing a supply-chain or CI-security finding when the evidence (pinned actions, explicit least-privilege permissions, present lockfile) doesn't support one.",
+    "evidence_required": "Response states specifically what was checked and found clean, rather than a vague 'looks fine' or a manufactured finding."
+  },
+  {
+    "id": "auditing-security-10",
+    "plugin": "ai-dev-team",
+    "skill": "auditing-security",
+    "scenario": "The bundled deterministic inventory script reports a review signal (e.g. a workflow with no explicit permissions block).",
+    "query": "audita el supply chain usando el inventario del proyecto",
+    "expected_behavior": "Treats the script's signal as a lead to inspect further (e.g. checking what permissions the job actually exercises, whether repo/org defaults are known) before classifying it, and reports it as a supply-chain review signal rather than a vulnerability if the inspection doesn't confirm one.",
+    "forbidden_behavior": "Converting every signal the inventory script reports directly into a 'vulnerability found' without any further inspection.",
+    "evidence_required": "Response shows evidence of inspecting the signal's actual context (not just restating the script's message) before assigning a classification."
   }
 ]
