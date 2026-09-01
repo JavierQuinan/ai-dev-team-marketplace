@@ -1,6 +1,7 @@
 [
   {
     "id": "preparing-releases-01",
+    "plugin": "ai-dev-team",
     "skill": "preparing-releases",
     "scenario": "All checks pass except a pending, unreviewed destructive migration that drops a column with existing data.",
     "query": "deja esto listo para producción",
@@ -10,6 +11,7 @@
   },
   {
     "id": "preparing-releases-02",
+    "plugin": "ai-dev-team",
     "skill": "preparing-releases",
     "scenario": "Build, lint, typecheck, and unit tests all pass with real evidence; no E2E suite exists in the project.",
     "query": "verifica que el proyecto está listo para release",
@@ -19,6 +21,7 @@
   },
   {
     "id": "preparing-releases-03",
+    "plugin": "ai-dev-team",
     "skill": "preparing-releases",
     "scenario": "Every check passes and the verdict is GO; the user then asks to proceed with deploying to production.",
     "query": "genial, ahora despliega a producción",

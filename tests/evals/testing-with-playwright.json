@@ -1,6 +1,7 @@
 [
   {
     "id": "testing-with-playwright-01",
+    "plugin": "ai-dev-team",
     "skill": "testing-with-playwright",
     "scenario": "Project already has a Playwright config and existing fixtures for authenticated sessions.",
     "query": "prueba todo el flujo de checkout con Playwright",
@@ -10,6 +11,7 @@
   },
   {
     "id": "testing-with-playwright-02",
+    "plugin": "ai-dev-team",
     "skill": "testing-with-playwright",
     "scenario": "The flow under test touches tenant-scoped data in a multi-tenant application.",
     "query": "prueba el panel de administración con Playwright",
@@ -19,6 +21,7 @@
   },
   {
     "id": "testing-with-playwright-03",
+    "plugin": "ai-dev-team",
     "skill": "testing-with-playwright",
     "scenario": "A written test fails; the failure is later found to be caused by the dev server not running, not by the application or the test.",
     "query": "corre las pruebas E2E del login",

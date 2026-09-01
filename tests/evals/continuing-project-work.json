@@ -1,6 +1,7 @@
 [
   {
     "id": "continuing-project-work-01",
+    "plugin": "ai-dev-team",
     "skill": "continuing-project-work",
     "scenario": "User asks to resume unspecified prior work in a repo with a dirty working tree and recent commits.",
     "query": "continúa donde quedamos",
@@ -10,6 +11,7 @@
   },
   {
     "id": "continuing-project-work-02",
+    "plugin": "ai-dev-team",
     "skill": "continuing-project-work",
     "scenario": "User names a specific module that does not appear to exist anywhere in the repository.",
     "query": "continúa el módulo de facturación recurrente",
@@ -19,6 +21,7 @@
   },
   {
     "id": "continuing-project-work-03",
+    "plugin": "ai-dev-team",
     "skill": "continuing-project-work",
     "scenario": "Repo has a clean working tree, all tests passing, and the named feature is fully implemented per the code.",
     "query": "sigue con el módulo de agenda",
@@ -28,6 +31,7 @@
   },
   {
     "id": "continuing-project-work-04",
+    "plugin": "ai-dev-team",
     "skill": "continuing-project-work",
     "scenario": "Repository has only 2 commits total (a freshly initialized project, or a shallow clone with limited depth).",
     "query": "continúa donde quedamos",

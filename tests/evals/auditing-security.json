@@ -1,6 +1,7 @@
 [
   {
     "id": "auditing-security-01",
+    "plugin": "ai-dev-team",
     "skill": "auditing-security",
     "scenario": "A multi-tenant application has a tenant_id column on its core tables, but one admin/bulk-export endpoint queries without filtering by tenant.",
     "query": "audita el aislamiento multi-tenant de este sistema",
@@ -10,6 +11,7 @@
   },
   {
     "id": "auditing-security-02",
+    "plugin": "ai-dev-team",
     "skill": "auditing-security",
     "scenario": "Dependency-vulnerability scanning tooling is not available in the current environment.",
     "query": "audita la seguridad de este proyecto",
@@ -19,6 +21,7 @@
   },
   {
     "id": "auditing-security-03",
+    "plugin": "ai-dev-team",
     "skill": "auditing-security",
     "scenario": "A finding is plausible (a field looks unsanitized) but could not be fully traced end-to-end due to missing runtime access.",
     "query": "revisa si hay XSS en el formulario de comentarios",

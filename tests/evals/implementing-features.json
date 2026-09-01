@@ -1,6 +1,7 @@
 [
   {
     "id": "implementing-features-01",
+    "plugin": "ai-dev-team",
     "skill": "implementing-features",
     "scenario": "A plan exists for adding a new API endpoint; project has an existing lint/typecheck/test pipeline defined in package.json.",
     "query": "implementa esta funcionalidad siguiendo el plan anterior",
@@ -10,6 +11,7 @@
   },
   {
     "id": "implementing-features-02",
+    "plugin": "ai-dev-team",
     "skill": "implementing-features",
     "scenario": "After implementing, the project's test suite shows a failure caused directly by the new change.",
     "query": "implementa el endpoint de exportación de reportes",
@@ -19,6 +21,7 @@
   },
   {
     "id": "implementing-features-03",
+    "plugin": "ai-dev-team",
     "skill": "implementing-features",
     "scenario": "One verification step (e.g. an E2E suite) cannot run in the current environment (no browser available).",
     "query": "implementa el cambio y verifica que todo funciona",

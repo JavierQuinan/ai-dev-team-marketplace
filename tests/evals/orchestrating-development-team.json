@@ -1,6 +1,7 @@
 [
   {
     "id": "orchestrating-development-team-01",
+    "plugin": "ai-dev-team",
     "skill": "orchestrating-development-team",
     "scenario": "User asks for a cross-cutting feature spanning backend, frontend, and tests, framed as full end-to-end delivery.",
     "query": "actúa como el equipo completo e implementa el checkout con tarjeta, de punta a punta",
@@ -10,6 +11,7 @@
   },
   {
     "id": "orchestrating-development-team-02",
+    "plugin": "ai-dev-team",
     "skill": "orchestrating-development-team",
     "scenario": "User asks for a one-line copy change in a single file.",
     "query": "cambia el texto del botón de 'Enviar' a 'Confirmar'",
@@ -19,6 +21,7 @@
   },
   {
     "id": "orchestrating-development-team-03",
+    "plugin": "ai-dev-team",
     "skill": "orchestrating-development-team",
     "scenario": "During IMPLEMENT, the REVIEW stage finds a BLOCKER (missing authorization check on a new endpoint).",
     "query": "orquesta la implementación de un endpoint de administración de usuarios",

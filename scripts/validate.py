@@ -30,11 +30,13 @@ What this validator does NOT check (by design — see Option A in the ADR):
     - Full JSON-Schema-level correctness of marketplace.json / plugin.json
       (field types, allowed enum values, unknown-key detection). Run
       `claude plugin validate .` for that.
-    - YAML correctness beyond a single-line `key: value` or a single-line
-      `key: [a, b]` inline list. Multi-line YAML lists/maps in frontmatter
-      (block style) are not parsed; a field written that way is skipped
-      with a warning, not validated. None of this repo's own skills/agents
-      currently use block-style YAML, by convention.
+    - Any YAML beyond three shapes: flat `key: value`, a single-line inline
+      list `key: [a, b]`, and a simple block-style list (`key:` on its own
+      line followed by `  - item` lines). Nested maps, multi-line strings,
+      anchors/aliases, and mixed-style values are not parsed; see
+      `Validator.parse_frontmatter` for the exact subset. None of this
+      repo's own skills/agents currently need anything beyond that subset,
+      by convention.
     - Whether a skill/agent actually behaves as described. That's what
       tests/evals/ and manual testing are for.
 """
@@ -52,6 +54,7 @@ INLINE_LIST_RE = re.compile(r"^\[(.*)\]$")
 
 REQUIRED_EVAL_FIELDS = (
     "id",
+    "plugin",
     "skill",
     "scenario",
     "query",
@@ -97,9 +100,20 @@ class Validator:
             return None
 
     def parse_frontmatter(self, path: Path) -> dict[str, object] | None:
-        """Minimal frontmatter parser: flat `key: value` plus single-line
-        inline lists (`key: [a, b, c]`). Does not parse block-style YAML
-        lists/maps — see the module docstring.
+        """Minimal frontmatter parser supporting exactly three shapes:
+
+        1. Flat scalar: `key: value`
+        2. Inline list: `key: [a, b, c]` (single line)
+        3. Simple block list:
+               key:
+                 - a
+                 - b
+
+        Anything else — nested maps, multi-line strings, YAML anchors,
+        a block list mixed with other content under the same key — is not
+        supported: a line that doesn't match one of the three shapes above
+        is skipped with a warning, not silently misparsed. See the module
+        docstring's "What this validator does NOT check" section.
         """
         text = path.read_text(encoding="utf-8")
         lines = text.splitlines()
@@ -120,7 +134,8 @@ class Validator:
             if not stripped or stripped.startswith("#"):
                 continue
             if pending_list_key is not None and stripped.startswith("- "):
-                fm.setdefault(pending_list_key, [])
+                if not isinstance(fm.get(pending_list_key), list):
+                    fm[pending_list_key] = []
                 fm[pending_list_key].append(stripped[2:].strip().strip('"').strip("'"))
                 continue
             pending_list_key = None
@@ -145,8 +160,20 @@ class Validator:
                 fm[key] = value.strip('"').strip("'")
         return fm
 
-    def check_local_links(self, path: Path) -> None:
+    def check_local_links(self, path: Path, *, plugin_root: Path | None = None) -> None:
+        """Check that every local (non-http) markdown link in `path` resolves.
+
+        When `plugin_root` is given, `path` is understood to be a *runtime*
+        file belonging to that plugin (a SKILL.md or an agent file) — a link
+        that resolves to a real file in this checkout but outside
+        `plugin_root` is still an error, because Claude Code copies only the
+        plugin's own directory into the plugin cache when installing from a
+        marketplace. A link that exists in this monorepo checkout but points
+        outside the plugin will 404 for anyone who installed the plugin
+        rather than cloned the whole marketplace repo.
+        """
         text = path.read_text(encoding="utf-8")
+        resolved_plugin_root = plugin_root.resolve() if plugin_root is not None else None
         for match in MD_LINK_RE.finditer(text):
             target = match.group(1)
             if target.startswith(("http://", "https://", "mailto:")):
@@ -154,6 +181,16 @@ class Validator:
             resolved = (path.parent / target).resolve()
             if not resolved.exists():
                 self.error(f"{self.rel(path)}: broken local link -> {target}")
+                continue
+            if resolved_plugin_root is not None:
+                try:
+                    resolved.relative_to(resolved_plugin_root)
+                except ValueError:
+                    self.error(
+                        f"{self.rel(path)}: runtime link escapes the plugin root -> {target} "
+                        f"(exists in this checkout but plugin installs copy only the plugin's own "
+                        f"directory, so this reference would be broken after install)"
+                    )
 
     # -- marketplace -----------------------------------------------------
 
@@ -309,7 +346,7 @@ class Validator:
             elif line_count > 250:
                 self.warn(f"skill '{dir_name}': SKILL.md is {line_count} lines, exceeds this repo's 250-line target")
 
-            self.check_local_links(skill_md)
+            self.check_local_links(skill_md, plugin_root=plugin_root)
 
         return names
 
@@ -347,13 +384,22 @@ class Validator:
                             f"(not found under {plugin_name}'s skills/)"
                         )
 
-            self.check_local_links(agent_file)
+            self.check_local_links(agent_file, plugin_root=plugin_root)
 
         return names
 
     # -- evals -------------------------------------------------------------
 
-    def validate_evals(self, all_skill_names: set[str]) -> None:
+    def validate_evals(self, all_plugin_skill_pairs: set[tuple[str, str]]) -> None:
+        """Validate tests/evals/*.json against the known (plugin, skill) pairs.
+
+        Eval identity is scoped by (plugin, skill), not bare skill name,
+        because two different plugins may legitimately publish a skill with
+        the same basename (their effective identity is namespaced by
+        plugin). Without this, evals for plugin-a's `reviewing-code` could
+        silently satisfy the coverage requirement for plugin-b's
+        `reviewing-code`.
+        """
         evals_dir = self.root / "tests" / "evals"
         if not evals_dir.exists():
             self.error(f"missing evals directory: {self.rel(evals_dir)}")
@@ -365,7 +411,7 @@ class Validator:
             return
 
         seen_ids: set[str] = set()
-        per_skill_count: dict[str, int] = {name: 0 for name in all_skill_names}
+        per_pair_count: dict[tuple[str, str], int] = {pair: 0 for pair in all_plugin_skill_pairs}
 
         for path in eval_files:
             data = self.load_json(path)
@@ -384,21 +430,26 @@ class Validator:
                 if eid in seen_ids:
                     self.error(f"{self.rel(path)}: duplicate eval id '{eid}'")
                 seen_ids.add(eid)
-                skill = entry["skill"]
-                if skill not in all_skill_names:
-                    self.error(f"{self.rel(path)}: eval '{eid}' references unknown skill '{skill}'")
+                pair = (entry["plugin"], entry["skill"])
+                if pair not in all_plugin_skill_pairs:
+                    self.error(
+                        f"{self.rel(path)}: eval '{eid}' references unknown plugin/skill pair "
+                        f"('{pair[0]}', '{pair[1]}')"
+                    )
                 else:
-                    per_skill_count[skill] = per_skill_count.get(skill, 0) + 1
+                    per_pair_count[pair] = per_pair_count.get(pair, 0) + 1
 
-        for skill, count in per_skill_count.items():
+        for (plugin_name, skill), count in per_pair_count.items():
             if count < 3:
-                self.error(f"skill '{skill}' has only {count} eval(s); at least 3 are required")
+                self.error(
+                    f"plugin '{plugin_name}' skill '{skill}' has only {count} eval(s); at least 3 are required"
+                )
 
     # -- top level ---------------------------------------------------------
 
     def run(self) -> int:
         marketplace = self.validate_marketplace()
-        all_skill_names: set[str] = set()
+        all_plugin_skill_pairs: set[tuple[str, str]] = set()
 
         if marketplace is not None:
             for entry in marketplace.get("plugins", []):
@@ -411,17 +462,11 @@ class Validator:
                 if plugin is None:
                     continue
                 skill_names = self.validate_skills(entry["name"], plugin_root)
-                overlap = skill_names & all_skill_names
-                if overlap:
-                    self.warn(
-                        f"plugin '{entry['name']}': skill name(s) {sorted(overlap)} also exist in another "
-                        f"validated plugin; eval-to-skill matching below is not plugin-scoped"
-                    )
-                all_skill_names |= skill_names
+                all_plugin_skill_pairs |= {(entry["name"], s) for s in skill_names}
                 self.validate_agents(entry["name"], plugin_root, skill_names)
 
-        if all_skill_names:
-            self.validate_evals(all_skill_names)
+        if all_plugin_skill_pairs:
+            self.validate_evals(all_plugin_skill_pairs)
         else:
             self.error("cannot validate evals: no skills were discovered in any local plugin")
 

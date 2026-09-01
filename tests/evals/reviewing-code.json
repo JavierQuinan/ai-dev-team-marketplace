@@ -1,6 +1,7 @@
 [
   {
     "id": "reviewing-code-01",
+    "plugin": "ai-dev-team",
     "skill": "reviewing-code",
     "scenario": "A PR diff adds a new admin-only endpoint that has no authorization check.",
     "query": "revisa este PR",
@@ -10,6 +11,7 @@
   },
   {
     "id": "reviewing-code-02",
+    "plugin": "ai-dev-team",
     "skill": "reviewing-code",
     "scenario": "A diff is clean: no correctness, security, or architectural issues found after genuine review.",
     "query": "revisa este PR de un cambio pequeño en el footer",
@@ -19,6 +21,7 @@
   },
   {
     "id": "reviewing-code-03",
+    "plugin": "ai-dev-team",
     "skill": "reviewing-code",
     "scenario": "The same minor style inconsistency (e.g. inconsistent quote style) appears in 40 lines across the diff.",
     "query": "revisa este PR",

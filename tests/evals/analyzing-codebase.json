@@ -1,6 +1,7 @@
 [
   {
     "id": "analyzing-codebase-01",
+    "plugin": "ai-dev-team",
     "skill": "analyzing-codebase",
     "scenario": "User asks for a technical map of an unfamiliar repository with a NestJS backend and Angular frontend.",
     "query": "analiza este proyecto y dime qué stack usa",
@@ -10,6 +11,7 @@
   },
   {
     "id": "analyzing-codebase-02",
+    "plugin": "ai-dev-team",
     "skill": "analyzing-codebase",
     "scenario": "Repository has no test suite at all.",
     "query": "haz un mapa técnico del repositorio",
@@ -19,6 +21,7 @@
   },
   {
     "id": "analyzing-codebase-03",
+    "plugin": "ai-dev-team",
     "skill": "analyzing-codebase",
     "scenario": "Repository has multi-tenant data with a tenant_id column but the user did not ask about security.",
     "query": "analiza este proyecto",

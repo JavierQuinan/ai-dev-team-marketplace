@@ -1,6 +1,7 @@
 [
   {
     "id": "planning-implementation-01",
+    "plugin": "ai-dev-team",
     "skill": "planning-implementation",
     "scenario": "User requests a non-trivial feature involving a new database table and a new API endpoint.",
     "query": "implementa esta funcionalidad: permitir a los usuarios exportar su historial en PDF",
@@ -10,6 +11,7 @@
   },
   {
     "id": "planning-implementation-02",
+    "plugin": "ai-dev-team",
     "skill": "planning-implementation",
     "scenario": "User requests a trivial single-file fix (correcting a typo in an error message).",
     "query": "corrige el typo en el mensaje de error de login",
@@ -19,6 +21,7 @@
   },
   {
     "id": "planning-implementation-03",
+    "plugin": "ai-dev-team",
     "skill": "planning-implementation",
     "scenario": "The requested change requires a destructive, non-backwards-compatible database migration (dropping a column still read by deployed code).",
     "query": "implementa el cambio de esquema para renombrar la columna user_id",
