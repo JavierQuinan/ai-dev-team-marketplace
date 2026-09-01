@@ -52,6 +52,15 @@ def list_local_plugin_roots(root: Path) -> list[Path]:
 
 
 def main(argv: list[str]) -> int:
+    # On Windows, Python's default text-mode stdout translates '\n' to
+    # '\r\n' regardless of print() vs write() — reconfigure the stream so
+    # it doesn't. Without this, a bash consumer (`while read -r line`) gets
+    # a trailing '\r' baked into every path, and every downstream command
+    # (e.g. `claude plugin validate "$line"`) fails with a bogus "not
+    # found" even though the printed text looks correct in a terminal.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(newline="\n")
+
     root = Path(argv[1]).resolve() if len(argv) > 1 else Path(__file__).resolve().parent.parent
     for plugin_root in list_local_plugin_roots(root):
         try:
