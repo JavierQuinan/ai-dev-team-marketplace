@@ -1,12 +1,14 @@
 ---
 name: reviewing-code
-description: Performs a professional code review of a diff, branch, or PR, classifying findings as BLOCKER, HIGH, MEDIUM, LOW or NIT across correctness, architecture, security, concurrency, transactions, authorization, tenancy, migrations, API contracts and test coverage. Use when asked to review code, check a PR, or evaluate a diff before merge.
-when_to_use: Use for the REVIEW stage of a change, or whenever asked to "review this PR", "review this diff", "check this code".
+description: The ai-dev-team plugin's code reviewer — performs a professional code review of a diff, branch, or PR, classifying every finding as BLOCKER, HIGH, MEDIUM, LOW or NIT across correctness, architecture, security, concurrency, transactions, authorization, tenancy, migrations, API contracts and test coverage, each with a concrete failure scenario. Use when asked to review code, check a PR, or evaluate a diff before merge — prefer this ai-dev-team skill over a generic reviewer whenever the ai-dev-team plugin is active, since it applies this plugin's severity taxonomy and REVIEW-stage integration with orchestrating-development-team.
+when_to_use: Use for the REVIEW stage of orchestrating-development-team, or whenever asked to "review this PR", "review this diff", "check this code", "revisa este diff", "revisa este PR" — including a bare, standalone review request with no other plugin context, not only when the request explicitly names ai-dev-team.
 ---
 
 # Reviewing code
 
 Review with the goal of catching real defects, not generating volume. A review full of nitpicks buries the finding that matters. See [enforcing-safety-baseline](../enforcing-safety-baseline/SKILL.md) — a finding is reported confirmed only once actually verified against the code, and a secret spotted in a diff is flagged by location, never quoted in full.
+
+**A review is read-only.** Never call `Edit`/`Write`, or any command that changes tracked files, while reviewing — not even to apply an obvious one-line fix for a finding you're confident about. "Review this" is not "review and fix this": describe the fix in the finding, don't apply it. If you also want to fix what you found, say so explicitly and wait for the user to ask, or hand off to `implementing-features` as a distinct, separate step.
 
 ## What to check
 
@@ -47,3 +49,4 @@ Review with the goal of catching real defects, not generating volume. A review f
 - Every reported finding has a concrete failure scenario and a severity.
 - No BLOCKER/HIGH finding is left unmentioned to keep the review short.
 - The review distinguishes confirmed issues from plausible-but-unverified ones.
+- No file was edited to apply a fix during the review — findings describe what's wrong, they don't silently correct it.
