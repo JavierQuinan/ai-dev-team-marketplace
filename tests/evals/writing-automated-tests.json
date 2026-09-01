@@ -1,0 +1,82 @@
+[
+  {
+    "id": "writing-automated-tests-01",
+    "plugin": "ai-dev-team",
+    "skill": "writing-automated-tests",
+    "scenario": "New business logic (a discount-calculation function) was just added with zero test coverage.",
+    "query": "escribe tests unitarios para la función calculateDiscount",
+    "expected_behavior": "Proposes and writes concrete test cases against calculateDiscount's actual behavior (specific inputs/expected outputs), not a vague 'add tests' placeholder, and actually runs them, reporting the real result.",
+    "forbidden_behavior": "Writing a single trivial happy-path test and calling coverage complete, or claiming the tests pass without executing them.",
+    "evidence_required": "Response shows concrete test cases with real inputs/expected outputs and the actual test-run output."
+  },
+  {
+    "id": "writing-automated-tests-02",
+    "plugin": "ai-dev-team",
+    "skill": "writing-automated-tests",
+    "scenario": "A function has an untested boundary: it divides by a denominator that could legitimately be zero, and the existing suite only covers the non-zero case.",
+    "query": "qué falta de cubrir en tests para esta función de cálculo de promedio",
+    "expected_behavior": "Identifies the specific missing edge case (zero/empty-denominator behavior) by name, not a generic 'add more edge cases' comment, and proposes or writes the concrete test for it.",
+    "forbidden_behavior": "Giving generic advice to 'test edge cases' without naming the actual boundary condition this function has.",
+    "evidence_required": "Response names the specific missing case (division by zero / empty input) explicitly."
+  },
+  {
+    "id": "writing-automated-tests-03",
+    "plugin": "ai-dev-team",
+    "skill": "writing-automated-tests",
+    "scenario": "An existing 'integration test' suite passes, but every call to the persistence layer and the external HTTP API is mocked — nothing in the suite touches a real or disposable dependency.",
+    "query": "revisa si estos tests de integración cubren algo real",
+    "expected_behavior": "Flags that the suite doesn't exercise real integration — every relevant boundary is mocked — and explains specifically what isn't actually being verified as a result, rather than accepting the suite's 'integration' label at face value.",
+    "forbidden_behavior": "Accepting the suite as genuine integration coverage because it's labeled that way and passes.",
+    "evidence_required": "Response explicitly identifies which boundary(ies) are fully mocked and states that real integration behavior isn't verified."
+  },
+  {
+    "id": "writing-automated-tests-04",
+    "plugin": "ai-dev-team",
+    "skill": "writing-automated-tests",
+    "scenario": "A known bug was just fixed (an off-by-one in a pagination function). The user wants a regression test.",
+    "query": "cubre este bug de paginación con un regression test",
+    "expected_behavior": "Writes a test that represents exactly the failure scenario (the off-by-one), attempts to show it would have failed against the pre-fix behavior, and reports real red→green evidence — or, if the pre-fix state genuinely can't be reproduced in this session, says so explicitly instead of asserting an unverified red→green narrative.",
+    "forbidden_behavior": "Claiming the test 'would have caught the bug' without actually demonstrating the pre-fix failure, or fabricating red→green evidence that wasn't actually observed.",
+    "evidence_required": "Response either shows the actual pre-fix failing run and the post-fix passing run, or explicitly states the pre-fix state could not be reproduced."
+  },
+  {
+    "id": "writing-automated-tests-05",
+    "plugin": "ai-dev-team",
+    "skill": "writing-automated-tests",
+    "scenario": "A multi-tenant service has a new endpoint that reads tenant-scoped records; the user asks for coverage of it.",
+    "query": "escribe pruebas para este endpoint de listado de facturas",
+    "expected_behavior": "Includes, alongside the same-tenant happy-path test, a negative test proving a caller from tenant A cannot read tenant B's invoices through this endpoint — verified against the actual boundary, not just asserted.",
+    "forbidden_behavior": "Writing only same-tenant happy-path coverage and omitting a cross-tenant negative test for tenant-scoped data.",
+    "evidence_required": "A specific negative cross-tenant test is present and actually executed."
+  },
+  {
+    "id": "writing-automated-tests-06",
+    "plugin": "ai-dev-team",
+    "skill": "writing-automated-tests",
+    "scenario": "The user explicitly asks for Playwright/E2E coverage of a checkout flow.",
+    "query": "write Playwright tests for the checkout flow",
+    "expected_behavior": "Recognizes this as E2E/browser work and hands off to testing-with-playwright rather than authoring it here.",
+    "forbidden_behavior": "Writing E2E/browser-flow tests directly inside writing-automated-tests, duplicating testing-with-playwright's scope.",
+    "evidence_required": "Response explicitly redirects to testing-with-playwright instead of producing Playwright test code itself."
+  },
+  {
+    "id": "writing-automated-tests-07",
+    "plugin": "ai-dev-team",
+    "skill": "writing-automated-tests",
+    "scenario": "The user asks for a coverage strategy for a payments service with no prior guidance on what to prioritize.",
+    "query": "necesito una estrategia de coverage para este servicio de pagos",
+    "expected_behavior": "Prioritizes critical/financial/security boundaries, authorization, error handling, and state transitions explicitly, without mechanically recommending a percentage target like '100% coverage.'",
+    "forbidden_behavior": "Recommending a blanket coverage percentage (e.g. 'aim for 100%') as the strategy itself, without prioritizing by risk/criticality.",
+    "evidence_required": "Response names specific risk areas to prioritize and does not present a coverage percentage as the goal."
+  },
+  {
+    "id": "writing-automated-tests-08",
+    "plugin": "ai-dev-team",
+    "skill": "writing-automated-tests",
+    "scenario": "A Python project already uses pytest with an established fixtures directory; the user asks for new unit tests.",
+    "query": "testea esta función de validación de emails",
+    "expected_behavior": "Detects pytest as the existing framework from actual project evidence (pytest.ini/conftest.py) and writes tests using it and its existing fixture conventions, rather than introducing a different test runner.",
+    "forbidden_behavior": "Introducing a second test framework (e.g. unittest from scratch, or a JS test runner) alongside the project's existing pytest setup.",
+    "evidence_required": "Response's tests use pytest conventions matching what's already in the project, with no parallel framework introduced."
+  }
+]
