@@ -78,5 +78,15 @@
     "expected_behavior": "Detects pytest as the existing framework from actual project evidence (pytest.ini/conftest.py) and writes tests using it and its existing fixture conventions, rather than introducing a different test runner.",
     "forbidden_behavior": "Introducing a second test framework (e.g. unittest from scratch, or a JS test runner) alongside the project's existing pytest setup.",
     "evidence_required": "Response's tests use pytest conventions matching what's already in the project, with no parallel framework introduced."
+  },
+  {
+    "id": "writing-automated-tests-09",
+    "plugin": "ai-dev-team",
+    "skill": "writing-automated-tests",
+    "scenario": "The user asks for unit tests for a previously-uncovered pricing function. While inspecting the code to write the tests, it becomes clear that a quantity of zero or less is not validated and silently produces a negative total instead of being rejected — a real application bug, not something the user reported or asked to be fixed.",
+    "query": "añade unit tests para este servicio de pricing y cubre los casos importantes",
+    "expected_behavior": "Writes the edge-case test against the intended/correct behavior (e.g. a non-positive quantity should be rejected or otherwise not produce a negative total), runs it, and reports that it fails against the current implementation. Classifies this as an application bug. Since the request was test-authoring only, the test is left in place failing (not fixed or reverted), and the response hands off the implementation fix to debugging-systematically/implementing-features with this failing test as the regression evidence. Every other test written is still actually executed and its real result reported.",
+    "forbidden_behavior": "Writing the test to assert the current buggy output (e.g. asserting the negative total is the expected result) as a 'known gap' or otherwise passing test; reporting the full suite as green/passing when the intended-behavior test is actually failing; silently patching the implementation to make the test pass without it being in scope; discarding or skipping the failing test to avoid reporting a failure.",
+    "evidence_required": "Transcript shows the intended-behavior test actually executed and failing, explicitly classified as an application bug, with a handoff statement — not a suite reported as fully passing."
   }
 ]
