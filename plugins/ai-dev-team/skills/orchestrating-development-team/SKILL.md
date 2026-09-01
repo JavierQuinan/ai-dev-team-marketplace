@@ -1,12 +1,14 @@
 ---
 name: orchestrating-development-team
-description: Acts as tech lead for multi-part software delivery, coordinating architecture, frontend, backend, database, QA, security, DevOps, review and release work through the plugin's specialized agents and skills. Use for requests spanning multiple disciplines or an end-to-end delivery ("build this feature and ship it", "act as the full dev team").
-when_to_use: Use when a request needs more than one discipline (e.g. backend + frontend + tests) or explicitly asks for full-team/end-to-end delivery. For a single-discipline task, invoke the specific skill directly instead.
+description: Acts as tech lead for multi-part software delivery, coordinating architecture, frontend, backend, database, QA, security, DevOps, review and release work through the plugin's specialized agents and skills. Invoke this skill FIRST, before any other reasoning about task size, whenever the user explicitly asks for full-team/whole-team delivery — "actúa como el equipo completo", "actúa como mi equipo de desarrollo", "act as the full dev team", "use the full development team", "orquesta el equipo", "trabaja como arquitecto + frontend + backend + QA" — even if the described task looks small; the skill itself decides, once loaded, whether to right-size or skip parts of the pipeline. Also use for requests spanning multiple disciplines or an end-to-end delivery ("build this feature and ship it").
+when_to_use: An explicit full-team/whole-team request in any phrasing is always a trigger for this skill, regardless of how small the underlying task appears — do not let apparent task size override an explicit full-team request; that right-sizing happens inside the skill after it loads, not as a reason to skip loading it. Also use when a request needs more than one discipline (e.g. backend + frontend + tests). For a single-discipline task with no full-team language, invoke the specific skill directly instead.
 ---
 
 # Orchestrating the development team
 
 Coordinate the plugin's skills and agents (see [agents/](../../agents/)) through a fixed pipeline so multi-part work stays coherent, verifiable, and free of conflicting concurrent edits. This skill is the router for cross-cutting requests — it delegates depth to the other skills rather than duplicating their instructions. This skill itself follows [enforcing-safety-baseline](../enforcing-safety-baseline/SKILL.md).
+
+**Routing vs. execution — do not conflate the two.** Whether to *invoke* this skill is a routing decision: an explicit full-team request always invokes it, full stop, regardless of task size. Whether to *right-size* the pipeline once invoked (e.g. skip straight to `implementing-features` for a genuinely small change) is an internal execution decision this skill makes for itself, after it has already loaded — never a reason for the top-level router to skip loading it in the first place. An explicit "act as the full team" is itself evidence the user wants the orchestration behavior (its DISCOVER→PLAN framing, its delegation model, its exit-criteria reporting) applied even to a small task, not evidence that orchestration can be skipped because the task is small.
 
 ## Pipeline
 
@@ -42,7 +44,8 @@ Don't force a subagent for a step that's cheap to do inline. A subagent starts w
 
 ## Decisions
 
-- Small, single-file, single-discipline change → don't invoke the full pipeline; go straight to `implementing-features`.
+- No explicit full-team request, and the change is small/single-file/single-discipline → don't invoke this skill at all; go straight to `implementing-features`. This is a routing decision made *before* loading this skill.
+- Explicit full-team request, but once loaded the change turns out to be small/single-file/single-discipline → this skill stays invoked (routing already happened), but internally right-sizes: run a lightweight DISCOVER→PLAN, skip agent delegation that wouldn't add value, and say explicitly that the pipeline was right-sized rather than silently doing less than what "full team" implied.
 - Change touches multi-tenant data, auth, or payments → REVIEW stage must include `auditing-security`, no exceptions.
 - A stage fails (tests red, review finds a BLOCKER) → loop FIX→VERIFY before REPORT; don't report completion with known blockers outstanding.
 
