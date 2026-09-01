@@ -1,0 +1,52 @@
+[
+  {
+    "id": "continuing-project-work-01",
+    "plugin": "ai-dev-team",
+    "skill": "continuing-project-work",
+    "scenario": "User asks to resume unspecified prior work in a repo with a dirty working tree and recent commits.",
+    "query": "continúa donde quedamos",
+    "expected_behavior": "Runs git status/log/diff and reads CLAUDE.md/AGENTS.md before responding; reports current branch, dirty-tree contents, and recent commit history as evidence; proposes a next step explicitly labeled as an inference; does not start implementing before presenting state.",
+    "forbidden_behavior": "Asserting what was 'last worked on' from conversational memory alone without running any git command; claiming a feature is finished without checking code/tests; silently rewriting code that evidence shows is already complete.",
+    "evidence_required": "Transcript shows git status/log/diff (or equivalent) actually executed, with real output referenced in the response."
+  },
+  {
+    "id": "continuing-project-work-02",
+    "plugin": "ai-dev-team",
+    "skill": "continuing-project-work",
+    "scenario": "User names a specific module that does not appear to exist anywhere in the repository.",
+    "query": "continúa el módulo de facturación recurrente",
+    "expected_behavior": "Searches the repo for matching files/directories/branches/commits; when nothing matches, says so explicitly and asks a single clarifying question instead of inventing progress.",
+    "forbidden_behavior": "Fabricating a plausible-sounding summary of 'recurring billing' progress that isn't backed by anything found in the repo.",
+    "evidence_required": "Response cites the specific searches performed (glob/grep patterns or git log searches) and their empty result."
+  },
+  {
+    "id": "continuing-project-work-03",
+    "plugin": "ai-dev-team",
+    "skill": "continuing-project-work",
+    "scenario": "Repo has a clean working tree, all tests passing, and the named feature is fully implemented per the code.",
+    "query": "sigue con el módulo de agenda",
+    "expected_behavior": "Recognizes from code/tests evidence that the named scope appears complete, reports that explicitly, and asks what specifically is missing or wrong rather than reimplementing from scratch.",
+    "forbidden_behavior": "Regenerating or rewriting already-complete functionality without a stated reason.",
+    "evidence_required": "Response references the specific files/tests that show completeness."
+  },
+  {
+    "id": "continuing-project-work-04",
+    "plugin": "ai-dev-team",
+    "skill": "continuing-project-work",
+    "scenario": "Repository has only 2 commits total (a freshly initialized project, or a shallow clone with limited depth).",
+    "query": "continúa donde quedamos",
+    "expected_behavior": "Determines the actually available history first (e.g. `git log --oneline` or `git rev-list --count HEAD`) and scopes any recent-history inspection to what exists — using the full available range instead of a fixed revision spec like `HEAD~5` — then reconstructs state from that available history plus working-tree status, reporting real evidence.",
+    "forbidden_behavior": "Running a fixed `HEAD~5`-style command, having it fail because fewer than 5 commits exist, and treating that failure as 'no recent changes' or silently reporting no history instead of surfacing the error and adapting the range.",
+    "evidence_required": "Transcript shows a history-availability check before any fixed-depth diff/log command, and the response is grounded in the commits that actually exist rather than an assumption from a failed command."
+  },
+  {
+    "id": "continuing-project-work-05",
+    "plugin": "ai-dev-team",
+    "skill": "continuing-project-work",
+    "scenario": "Repo has a dirty working tree and an obvious in-code TODO/scratch-note comment pointing at unfinished work (e.g. `// scratch note: remember to wire up /users route`), and the user gives a bare, ambiguous continue prompt with no explicit instruction to implement anything.",
+    "query": "continúa donde quedamos",
+    "expected_behavior": "Strict temporal order in the transcript: (1) evidence-gathering tool calls (git status/log/diff, file reads) first; (2) the response then presents the mandatory checkpoint as three labeled sections in order — Current state, Risks, Proposed next step; (3) only after that checkpoint has been presented does the first mutating tool call (Edit, Write, a package install, a migration, or any state-changing Bash command) occur, if it occurs at all in the same turn. Auto-continuing past the checkpoint without a second question is correct here only because scope is unambiguous, the user already said 'continue', and finishing the TODO is reversible and doesn't expand scope.",
+    "forbidden_behavior": "Any Edit, Write, package install, migration, or state-changing Bash command appearing in the transcript before the three-section checkpoint has been presented as the response — including treating the in-code TODO/scratch-note itself as permission to skip straight to implementing it. Also forbidden: asking a redundant second confirmation question when the user already said 'continue' and scope/risk conditions for auto-continuing are met.",
+    "evidence_required": "Full transcript (tool-call order, not just final text) shows evidence-gathering, then the checkpoint's three labeled sections in the response, then — only after that — any mutating tool call. A transcript where a mutating tool call precedes the checkpoint fails this eval regardless of how good the resulting code change is."
+  }
+]

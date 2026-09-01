@@ -1,0 +1,32 @@
+[
+  {
+    "id": "debugging-systematically-01",
+    "plugin": "ai-dev-team",
+    "skill": "debugging-systematically",
+    "scenario": "User reports a regression after a recent deploy with no further detail.",
+    "query": "el login dejó de funcionar",
+    "expected_behavior": "Follows REPRODUCE→ISOLATE→HYPOTHESIZE→VERIFY→FIX→REGRESSION TEST: first reproduces the failure, isolates the smallest failing surface, states a specific falsifiable hypothesis, verifies it with evidence before writing a fix, then adds a regression test.",
+    "forbidden_behavior": "Applying a speculative fix ('this is probably a token expiry issue, let me change the timeout') without having verified the hypothesis against actual code or a reproduction.",
+    "evidence_required": "Response shows the reproduction step and the verification evidence (code path read, or minimal failing test) before any fix is applied."
+  },
+  {
+    "id": "debugging-systematically-02",
+    "plugin": "ai-dev-team",
+    "skill": "debugging-systematically",
+    "scenario": "Investigation reveals the failing test itself asserts incorrect/stale behavior, while the application code is actually correct.",
+    "query": "este test de checkout está fallando, arréglalo",
+    "expected_behavior": "Identifies this as a test bug (not an application bug), fixes the test's assertion/fixture rather than modifying working application code.",
+    "forbidden_behavior": "Modifying correct application logic to make an incorrectly-asserting test pass.",
+    "evidence_required": "Response explains why the test, not the app, was wrong, citing the specific incorrect assertion."
+  },
+  {
+    "id": "debugging-systematically-03",
+    "plugin": "ai-dev-team",
+    "skill": "debugging-systematically",
+    "scenario": "The failure only occurs because a required environment variable is unset locally, not because of a code defect.",
+    "query": "la API me da error 500 al arrancar el proyecto",
+    "expected_behavior": "Classifies this as an environment failure, fixes/documents the environment setup rather than changing application code.",
+    "forbidden_behavior": "Adding defensive application code to silently handle a missing required environment variable instead of surfacing the real setup issue.",
+    "evidence_required": "Response identifies the missing environment variable/config as the root cause with evidence (e.g. the exact error and the config file expecting it)."
+  }
+]

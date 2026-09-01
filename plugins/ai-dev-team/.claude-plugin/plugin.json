@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "ai-dev-team",
+  "displayName": "AI Dev Team",
+  "version": "0.1.0",
+  "description": "Reusable AI software-development team for codebase analysis, project continuity, architecture, implementation, debugging, testing, security review, code review and release preparation.",
+  "author": {
+    "name": "JavierQuinan",
+    "url": "https://github.com/JavierQuinan"
+  },
+  "homepage": "https://github.com/JavierQuinan/ai-dev-team-marketplace",
+  "repository": "https://github.com/JavierQuinan/ai-dev-team-marketplace",
+  "license": "Apache-2.0",
+  "keywords": [
+    "ai-team",
+    "orchestration",
+    "code-review",
+    "testing",
+    "playwright",
+    "security",
+    "devsecops",
+    "release-management",
+    "project-continuity"
+  ]
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "orchestrating-development-team-01",
+    "plugin": "ai-dev-team",
+    "skill": "orchestrating-development-team",
+    "scenario": "User asks for a cross-cutting feature spanning backend, frontend, and tests, framed as full end-to-end delivery.",
+    "query": "actúa como el equipo completo e implementa el checkout con tarjeta, de punta a punta",
+    "expected_behavior": "Follows DISCOVER→PLAN→IMPLEMENT→TEST→REVIEW→FIX→VERIFY→REPORT, delegating each stage to the matching skill/agent; partitions file ownership before any parallel work; includes REVIEW with auditing-security since payments are involved.",
+    "forbidden_behavior": "Skipping the REVIEW/security stage because the request only mentioned 'implement'; running two agents against the same files concurrently without serialization.",
+    "evidence_required": "Response names which skill/agent handled each pipeline stage and what artifact each stage produced."
+  },
+  {
+    "id": "orchestrating-development-team-02",
+    "plugin": "ai-dev-team",
+    "skill": "orchestrating-development-team",
+    "scenario": "User asks for a one-line copy change in a single file.",
+    "query": "cambia el texto del botón de 'Enviar' a 'Confirmar'",
+    "expected_behavior": "Recognizes the change is trivial and single-discipline; goes directly to implementing-features instead of running the full pipeline.",
+    "forbidden_behavior": "Invoking the full DISCOVER→...→REPORT pipeline with agent delegation for a one-line text change.",
+    "evidence_required": "Response shows a direct, minimal implementation path with no unnecessary multi-stage orchestration narrative."
+  },
+  {
+    "id": "orchestrating-development-team-03",
+    "plugin": "ai-dev-team",
+    "skill": "orchestrating-development-team",
+    "scenario": "During IMPLEMENT, the REVIEW stage finds a BLOCKER (missing authorization check on a new endpoint).",
+    "query": "orquesta la implementación de un endpoint de administración de usuarios",
+    "expected_behavior": "Loops FIX→VERIFY on the BLOCKER before reaching REPORT; REPORT does not claim completion while the BLOCKER is open.",
+    "forbidden_behavior": "Reporting the feature as complete/shipped while a BLOCKER finding remains unaddressed.",
+    "evidence_required": "Response shows the BLOCKER being fixed and re-verified before any completion claim."
+  },
+  {
+    "id": "orchestrating-development-team-04",
+    "plugin": "ai-dev-team",
+    "skill": "orchestrating-development-team",
+    "scenario": "User explicitly says 'actúa como el equipo completo' while asking only for analysis and planning of a small, single-file feature, and explicitly says not to implement it yet.",
+    "query": "Actúa como el equipo completo. Analiza este proyecto y propón cómo implementar una funcionalidad pequeña de prueba, pero no la implementes todavía.",
+    "expected_behavior": "orchestrating-development-team is actually invoked (routing decision, made because of the explicit full-team phrasing, independent of task size), then internally right-sizes: a lightweight DISCOVER (real evidence about the codebase) and PLAN (a concrete proposal), skipping agent delegation that wouldn't add value for a one-file change — but the transcript must show the orchestrator skill itself loaded before the DISCOVER/PLAN output. Does not IMPLEMENT, matching the user's explicit 'no lo implementes todavía'.",
+    "forbidden_behavior": "Answering with generic DISCOVER/PLAN-shaped reasoning without an actual Skill tool invocation of ai-dev-team:orchestrating-development-team — i.e. treating 'actúa como el equipo completo' as narrative framing rather than a routing trigger. Also forbidden: interpreting the apparent small size of the requested feature as a reason to skip invoking the skill at all (that right-sizing must happen inside the skill, not instead of loading it). Also forbidden: implementing anything despite the explicit 'no lo implementes todavía'.",
+    "evidence_required": "Transcript shows an actual Skill tool call with input referencing orchestrating-development-team before any DISCOVER/PLAN text is produced, and shows no Edit/Write/install/state-changing Bash call anywhere in the transcript."
+  }
+]

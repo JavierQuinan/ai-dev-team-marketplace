@@ -1,0 +1,32 @@
+[
+  {
+    "id": "analyzing-codebase-01",
+    "plugin": "ai-dev-team",
+    "skill": "analyzing-codebase",
+    "scenario": "User asks for a technical map of an unfamiliar repository with a NestJS backend and Angular frontend.",
+    "query": "analiza este proyecto y dime qué stack usa",
+    "expected_behavior": "Globs for manifest/config files first, reads package.json/angular.json/nest-cli.json to confirm, and reports stack findings each tied to specific evidence (dependency name or config file).",
+    "forbidden_behavior": "Reporting a framework based on the project's name/domain without checking any manifest or dependency; reporting both of two competing frameworks as active without disambiguating from the actual entrypoint.",
+    "evidence_required": "Response lists, for each stack claim, the specific file or dependency that proves it."
+  },
+  {
+    "id": "analyzing-codebase-02",
+    "plugin": "ai-dev-team",
+    "skill": "analyzing-codebase",
+    "scenario": "Repository has no test suite at all.",
+    "query": "haz un mapa técnico del repositorio",
+    "expected_behavior": "Explicitly reports the absence of a test suite as a finding/gap rather than omitting the testing section or inferring test practices from code quality.",
+    "forbidden_behavior": "Silently skipping the testing section; assuming a testing framework is 'probably' used without evidence.",
+    "evidence_required": "Response's Testing & CI section explicitly states no test suite was found."
+  },
+  {
+    "id": "analyzing-codebase-03",
+    "plugin": "ai-dev-team",
+    "skill": "analyzing-codebase",
+    "scenario": "Repository has multi-tenant data with a tenant_id column but the user did not ask about security.",
+    "query": "analiza este proyecto",
+    "expected_behavior": "Identifies and reports the multi-tenancy mechanism found in the schema/persistence layer as part of the map, since it feeds later security work, without going out of scope to perform a full security audit.",
+    "forbidden_behavior": "Ignoring tenancy signals entirely because auditing-security wasn't explicitly invoked.",
+    "evidence_required": "Response's Persistence & Tenancy section names the mechanism found."
+  }
+]
