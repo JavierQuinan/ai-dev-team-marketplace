@@ -62,7 +62,7 @@ The ten workflow skills (`implementing-features`, `debugging-systematically`, et
 
 ## Frontmatter validation: what this repo's validator does and does not check
 
-`scripts/validate.py` is stdlib-only Python: it has no YAML library and does not attempt to be one. Its frontmatter reader (`Validator.parse_frontmatter`) understands exactly two shapes: a single-line `key: value`, and a single-line inline list `key: [a, b, c]` (used for an agent's `skills:` preload field). It does **not** parse block-style YAML (a `key:` line followed by indented `- item` lines spanning multiple lines), nested maps, multi-line strings, or YAML anchors/aliases. None of this plugin's current `SKILL.md` or agent files use those forms, by convention — `CONTRIBUTING.md` asks new contributions to keep the same convention specifically so this stays true.
+`scripts/validate.py` is stdlib-only Python: it has no YAML library and does not attempt to be one. Its frontmatter reader (`Validator.parse_frontmatter`) understands exactly three shapes: a single-line `key: value`; a single-line inline list `key: [a, b, c]`; and a simple block-style list (`key:` on its own line followed by `  - item` lines). It does **not** parse nested maps, multi-line strings, YAML anchors/aliases, or a block list mixed with other content under the same key. None of this plugin's current `SKILL.md` or agent files use anything beyond those three shapes, by convention — `CONTRIBUTING.md` asks new contributions to keep the same convention specifically so this stays true.
 
 This is a deliberate scope decision (Option A, evaluated during the v0.1.0 hardening pass), not an oversight: **the official `claude plugin validate` command is the schema authority**, and this script only adds checks the official CLI is not designed to make:
 
@@ -73,8 +73,9 @@ This is a deliberate scope decision (Option A, evaluated during the v0.1.0 harde
 | Skill frontmatter deep validation (`name` format, non-empty `description`) | **Not observed** — an empty `description` and an invalid `name` in a `SKILL.md` both passed `claude plugin validate --strict` with zero warnings in local testing (Claude Code v2.1.251) | Yes — this is the check the pre-merge review specifically asked for |
 | Skill frontmatter `name` matching its directory (this repo's own convention, not a Claude Code requirement) | No — not a spec requirement, so not checked | Yes |
 | A skill/agent's declared `skills:` preload list pointing at a skill that doesn't exist | **Not observed** — a nonexistent skill name in an agent's `skills:` field passed validation in local testing | Yes |
-| Multi-plugin marketplace: every declared local plugin resolves and validates independently | Only validates the path you point it at | Yes — iterates every `plugins[]` entry in `marketplace.json` |
-| `tests/evals/*.json` schema and per-skill eval coverage (≥3 evals/skill) | N/A — this repo's own convention, not a Claude Code concept | Yes |
+| Multi-plugin marketplace: every declared local plugin resolves and validates independently | The CLI itself only validates the single path you point it at — CI compensates by looping it over every local plugin `scripts/list_local_plugins.py` finds | Yes — `scripts/validate.py` itself iterates every `plugins[]` entry in `marketplace.json` |
+| A runtime link (in a skill/agent file) that resolves to a real file in the monorepo checkout but *outside the plugin's own directory* | **Not observed** — empirically verified: a fixture plugin whose `SKILL.md` linked one directory above the plugin root passed `claude plugin validate --strict` with zero warnings (Claude Code v2.1.251); only an unrelated `author`-field warning showed up, from other missing metadata in that fixture | Yes — this is the P1 packaging-boundary check; Claude Code copies only the plugin's own directory into the cache on install (see [ADR 0003](../adr/0003-plugin-packaging-boundary.md)), so this can only be caught by a checker that knows where the plugin root is |
+| `tests/evals/*.json` schema and per-`(plugin, skill)` eval coverage (≥3 evals per pair) | N/A — this repo's own convention, not a Claude Code concept | Yes |
 | Local markdown link integrity between skill/agent/doc files | N/A | Yes |
 | Full JSON-Schema-level correctness (field types, enum values, unrecognized-key warnings) | Yes | No — not attempted |
 
@@ -83,10 +84,12 @@ Run both, for different reasons:
 ```bash
 # Schema authority — install once, no Anthropic credentials required:
 npm install -g @anthropic-ai/claude-code
-claude plugin validate .                      # marketplace.json
-claude plugin validate ./plugins/ai-dev-team   # this plugin's manifest + component paths
+claude plugin validate . --strict                       # marketplace.json
+python scripts/list_local_plugins.py | while read -r p;  do
+  claude plugin validate "$p" --strict                   # every local plugin's manifest + component paths
+done
 
-# This repo's own invariants (multi-plugin aware, name/eval/link checks above):
+# This repo's own invariants (multi-plugin aware, name/eval/link/packaging-boundary checks above):
 python scripts/validate.py
 ```
 

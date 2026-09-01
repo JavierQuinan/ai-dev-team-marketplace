@@ -117,15 +117,17 @@ claude --plugin-dir ./plugins/ai-dev-team
 
 ## Validation
 
-`scripts/validate.py` is dependency-free (Python standard library only) and checks:
+Two validators run, for different reasons — `claude plugin validate` is the schema authority; `scripts/validate.py` checks this repo's own invariants that the official CLI doesn't:
 
-- `marketplace.json` and `plugin.json` are valid JSON and structurally correct
-- Every skill directory has a `SKILL.md` with valid frontmatter (required fields present, no empty `description`)
-- Skill and agent names are unique, kebab-case, within documented length
-- All local file references (skill → references/templates/scripts) resolve
-- `tests/evals/*.json` conform to the eval schema
+- `claude plugin validate . --strict`, then `claude plugin validate <plugin-root> --strict` for every plugin `scripts/list_local_plugins.py` finds locally — the actual `marketplace.json` / `plugin.json` / frontmatter schema check. Install with `npm install -g @anthropic-ai/claude-code` (no Anthropic credentials required).
+- `scripts/validate.py` (dependency-free, Python standard library only) checks required repository-specific frontmatter invariants and cross-file structure that the official CLI does not, empirically confirmed (see [docs/architecture/token-efficiency.md](docs/architecture/token-efficiency.md#frontmatter-validation-what-this-repos-validator-does-and-does-not-check)):
+  - `marketplace.json` and every local plugin's `plugin.json` are valid JSON and structurally consistent with each other (name, version)
+  - Every skill's `SKILL.md` frontmatter `name` is present, kebab-case, unique within its plugin, and matches its own directory name
+  - Skill and agent names are unique per plugin and kebab-case
+  - Every local link inside a plugin's own `skills/`/`agents/` files resolves, *and* stays inside that plugin's root — a link that exists in this full checkout but points outside the plugin directory is rejected, because a marketplace install copies only the plugin's own directory
+  - `tests/evals/*.json` conform to the eval schema and give each `(plugin, skill)` pair at least 3 evals
 
-CI (`.github/workflows/validate.yml`) runs this on every pull request and push to `main`.
+CI (`.github/workflows/validate.yml`) runs both on every pull request and push to `main`, against every plugin the marketplace declares locally — not hardcoded to `ai-dev-team`.
 
 ## Contributing
 
