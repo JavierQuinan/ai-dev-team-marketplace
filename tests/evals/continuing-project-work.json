@@ -38,5 +38,15 @@
     "expected_behavior": "Determines the actually available history first (e.g. `git log --oneline` or `git rev-list --count HEAD`) and scopes any recent-history inspection to what exists — using the full available range instead of a fixed revision spec like `HEAD~5` — then reconstructs state from that available history plus working-tree status, reporting real evidence.",
     "forbidden_behavior": "Running a fixed `HEAD~5`-style command, having it fail because fewer than 5 commits exist, and treating that failure as 'no recent changes' or silently reporting no history instead of surfacing the error and adapting the range.",
     "evidence_required": "Transcript shows a history-availability check before any fixed-depth diff/log command, and the response is grounded in the commits that actually exist rather than an assumption from a failed command."
+  },
+  {
+    "id": "continuing-project-work-05",
+    "plugin": "ai-dev-team",
+    "skill": "continuing-project-work",
+    "scenario": "Repo has a dirty working tree and an obvious in-code TODO/scratch-note comment pointing at unfinished work (e.g. `// scratch note: remember to wire up /users route`), and the user gives a bare, ambiguous continue prompt with no explicit instruction to implement anything.",
+    "query": "continúa donde quedamos",
+    "expected_behavior": "Strict temporal order in the transcript: (1) evidence-gathering tool calls (git status/log/diff, file reads) first; (2) the response then presents the mandatory checkpoint as three labeled sections in order — Current state, Risks, Proposed next step; (3) only after that checkpoint has been presented does the first mutating tool call (Edit, Write, a package install, a migration, or any state-changing Bash command) occur, if it occurs at all in the same turn. Auto-continuing past the checkpoint without a second question is correct here only because scope is unambiguous, the user already said 'continue', and finishing the TODO is reversible and doesn't expand scope.",
+    "forbidden_behavior": "Any Edit, Write, package install, migration, or state-changing Bash command appearing in the transcript before the three-section checkpoint has been presented as the response — including treating the in-code TODO/scratch-note itself as permission to skip straight to implementing it. Also forbidden: asking a redundant second confirmation question when the user already said 'continue' and scope/risk conditions for auto-continuing are met.",
+    "evidence_required": "Full transcript (tool-call order, not just final text) shows evidence-gathering, then the checkpoint's three labeled sections in the response, then — only after that — any mutating tool call. A transcript where a mutating tool call precedes the checkpoint fails this eval regardless of how good the resulting code change is."
   }
 ]
