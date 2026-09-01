@@ -6,7 +6,7 @@ when_to_use: USE for architecture review, module-boundary analysis, dependency-d
 
 # Reviewing architecture
 
-Advisory and analysis only — this skill never edits or writes code, never runs a refactor, and never persists a file itself. See [enforcing-safety-baseline](../enforcing-safety-baseline/SKILL.md).
+Advisory and analysis only — this skill never edits or writes code, never runs a refactor, and never persists a file itself, through `Edit`/`Write` or by using `Bash` to work around not having them (no `>`/`>>`/`tee`/`sed -i`-style redirection, no `git add`/`commit`, no scripted file writes). `Bash` is for read-only inspection only. See [enforcing-safety-baseline](../enforcing-safety-baseline/SKILL.md).
 
 ## Workflow
 
@@ -30,7 +30,7 @@ Advisory and analysis only — this skill never edits or writes code, never runs
 
 - The request is really about a specific, already-decided change with no design fork → redirect to `planning-implementation`, don't run a full architecture review for it.
 - The codebase is genuinely healthy → say so; don't manufacture a modularization or refactor recommendation to appear thorough.
-- The user asks for an ADR to be saved/written to disk → provide the drafted content and the inferred path/number; hand it to the orchestrator or the appropriate implementation role to actually persist once the decision is accepted — this skill does not call `Write`/`Edit` itself.
+- The user asks for an ADR to be saved/written to disk → provide the drafted content and the inferred path/number; hand it to the orchestrator or the appropriate implementation role to actually persist once the decision is accepted — this skill does not call `Write`/`Edit` itself, and does not use `Bash` (redirection, `tee`, a one-off script) to create the file either.
 - The target repo already has its own ADR format/numbering → follow it exactly rather than imposing this marketplace's structure.
 - A small monolith is working fine → don't recommend microservices, a message queue, or another distributed-systems pattern without a concrete, evidenced bottleneck driving it.
 
@@ -38,5 +38,5 @@ Advisory and analysis only — this skill never edits or writes code, never runs
 
 - Every architecture finding cites the concrete evidence (file/module/dependency) that produced it — no unverified speculation presented as fact.
 - A recommendation, when one is asked for, picks an option and states why — never left at "it depends."
-- No refactor, edit, or file write was performed by this skill.
+- No refactor, edit, or file write was performed by this skill — not via `Edit`/`Write`, and not via a `Bash` command used to create or modify a file.
 - An ADR draft, when produced, matches the target repo's existing convention or explicitly notes none was found.
