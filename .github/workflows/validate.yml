@@ -28,12 +28,14 @@ jobs:
       - name: Run validator test suite
         run: python tests/test_validate.py -v
 
-      - name: Sanity-check manifest JSON with python -m json.tool
+      - name: Sanity-check marketplace + every local plugin's manifest JSON
         run: |
-          for f in .claude-plugin/marketplace.json plugins/ai-dev-team/.claude-plugin/plugin.json; do
-            echo "Checking $f"
-            python -m json.tool "$f" > /dev/null
-          done
+          echo "Checking .claude-plugin/marketplace.json"
+          python -m json.tool ".claude-plugin/marketplace.json" > /dev/null
+          while IFS= read -r plugin_root; do
+            echo "Checking $plugin_root/.claude-plugin/plugin.json"
+            python -m json.tool "$plugin_root/.claude-plugin/plugin.json" > /dev/null
+          done < <(python scripts/list_local_plugins.py)
 
       - name: Scan for obvious secret patterns
         run: |
@@ -60,4 +62,7 @@ jobs:
       - name: Run official plugin validation (claude plugin validate)
         run: |
           claude plugin validate . --strict
-          claude plugin validate ./plugins/ai-dev-team --strict
+          while IFS= read -r plugin_root; do
+            echo "== claude plugin validate $plugin_root --strict =="
+            claude plugin validate "$plugin_root" --strict
+          done < <(python scripts/list_local_plugins.py)
