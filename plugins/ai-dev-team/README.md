@@ -23,7 +23,7 @@ There is an eleventh skill, `enforcing-safety-baseline`, that is infrastructure 
 
 ## Agents
 
-`solution-architect`, `repository-explorer`, `frontend-engineer`, `backend-engineer`, `database-engineer`, `qa-engineer`, `security-reviewer`, `code-reviewer`, `debugger`, `release-manager` — role-scoped subagents, invoked as `ai-dev-team:<agent-name>` to disambiguate from any same-named agent another installed plugin or the project/user might define. Used by `orchestrating-development-team` and available for direct delegation. Each agent preloads `enforcing-safety-baseline` at startup (a subagent's context starts fresh and does not inherit anything from a parent skill) and can invoke its mapped workflow skill via the Skill tool on demand — see [docs/architecture/token-efficiency.md](../../docs/architecture/token-efficiency.md#agent-context-and-the-safety-baseline) for why.
+`solution-architect`, `repository-explorer`, `frontend-engineer`, `backend-engineer`, `database-engineer`, `qa-engineer`, `security-reviewer`, `code-reviewer`, `debugger`, `release-manager` — role-scoped subagents, invoked as `ai-dev-team:<agent-name>` to disambiguate from any same-named agent another installed plugin or the project/user might define. Used by `orchestrating-development-team` and available for direct delegation. Each agent preloads `enforcing-safety-baseline` at startup (a subagent's context starts fresh and does not inherit anything from a parent skill) and can invoke its mapped workflow skill via the Skill tool, namespaced as `ai-dev-team:<skill-name>`, on demand — see [docs/architecture/token-efficiency.md](https://github.com/JavierQuinan/ai-dev-team-marketplace/blob/main/docs/architecture/token-efficiency.md#agent-context-and-the-safety-baseline) in the marketplace repository for why.
 
 ## Shared references
 
@@ -38,4 +38,4 @@ python scripts/validate.py
 claude --plugin-dir ./plugins/ai-dev-team
 ```
 
-See the marketplace root [README.md](../../README.md) and [CONTRIBUTING.md](../../CONTRIBUTING.md) for full installation and contribution instructions.
+See the marketplace root [README.md](https://github.com/JavierQuinan/ai-dev-team-marketplace#readme) and [CONTRIBUTING.md](https://github.com/JavierQuinan/ai-dev-team-marketplace/blob/main/CONTRIBUTING.md) for full installation and contribution instructions. These are absolute links, not relative ones, because this file ships inside the plugin directory only — installing from the marketplace copies `plugins/ai-dev-team/` alone into the plugin cache, not the rest of this repository.

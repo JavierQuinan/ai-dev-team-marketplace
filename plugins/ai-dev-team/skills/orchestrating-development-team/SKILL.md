@@ -31,7 +31,7 @@ Skip stages that don't apply (e.g. no Playwright config and no E2E-relevant chan
 
 Use the `ai-dev-team:<agent-name>` scoped identifier (e.g. `ai-dev-team:backend-engineer`) when delegating through the Agent tool, not the bare name. Plugin agents are namespaced by their plugin, and another installed plugin — or a project/user-level agent — can define an agent with the same bare name; the scoped identifier is what disambiguates which one actually runs. This matters most when this skill is asked to "act as the full dev team": that request only becomes real DISCOVER→...→REPORT execution if delegation actually invokes `ai-dev-team:*` agents through the Agent tool, not just names them in prose.
 
-Don't force a subagent for a step that's cheap to do inline. A subagent starts with a fresh, isolated context window (it doesn't see this conversation), so spawning one for a one-file, low-risk step costs more in latency and re-established context than doing it directly. Reserve agent delegation for steps where the role-scoped tool restriction, a large/verbose sub-task, or genuine parallelism actually pays for that cost — see [docs/architecture/token-efficiency.md](../../../../docs/architecture/token-efficiency.md) for the full reasoning.
+Don't force a subagent for a step that's cheap to do inline. A subagent starts with a fresh, isolated context window (it doesn't see this conversation), so spawning one for a one-file, low-risk step costs more in latency and re-established context than doing it directly. Reserve agent delegation for steps where the role-scoped tool restriction, a large/verbose sub-task, or genuine parallelism actually pays for that cost.
 
 ## Coordination rules
 

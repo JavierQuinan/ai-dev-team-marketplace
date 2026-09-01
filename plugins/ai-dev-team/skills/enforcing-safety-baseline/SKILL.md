@@ -6,7 +6,7 @@ user-invocable: false
 
 # Safety baseline
 
-This is infrastructure, not a task: every `ai-dev-team` skill links here, and every `ai-dev-team` agent preloads this file via its `skills:` frontmatter field so the policy is present even when the agent or skill is invoked directly (see [docs/architecture/token-efficiency.md](../../../../docs/architecture/token-efficiency.md#agent-context-and-the-safety-baseline) for why a subagent can't rely on a parent skill having loaded this).
+This is infrastructure, not a task: every `ai-dev-team` skill links here, and every `ai-dev-team` agent preloads this file via its `skills:` frontmatter field so the policy is present even when the agent or skill is invoked directly — a subagent's context starts fresh and does not inherit anything a parent skill loaded, so this cannot be a plain reference file linked from elsewhere; it has to be preloadable.
 
 ## Evidence rule
 
