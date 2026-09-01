@@ -1,7 +1,7 @@
 ---
 name: testing-with-playwright
 description: Writes and runs Playwright end-to-end tests using the project's existing config and fixtures, prioritizing resilient selectors and real assertions over sleeps, and distinguishing test bugs from application bugs from environment failures. Use when asked to test a flow with Playwright, add E2E coverage, or verify a user journey end-to-end.
-when_to_use: Use for E2E test creation, running, or triage whenever a project has (or should have) Playwright coverage — "prueba todo con Playwright", "add E2E tests for X", "test the login flow".
+when_to_use: Use for E2E test creation, running, or triage whenever a project has (or should have) Playwright coverage — "prueba todo con Playwright", "add E2E tests for X", "test the login flow", "necesito un test E2E con Playwright para X", "write a Playwright test for X" — a request naming Playwright explicitly always means this skill, even for a single endpoint/flow.
 ---
 
 # Testing with Playwright

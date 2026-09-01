@@ -1,7 +1,7 @@
 ---
 name: implementing-features
-description: Implements a feature or change end-to-end, respecting existing architecture, reusing existing components instead of duplicating them, updating tests, and validating build/lint/typecheck/tests before reporting completion. Use for the actual coding step, after planning-implementation for non-trivial changes.
-when_to_use: Use for the IMPLEMENT stage of any change once scope is understood (directly for trivial changes, after planning-implementation for larger ones).
+description: Invoke this skill before writing or changing any code in this project — do not write code directly without it. Implements a feature or change end-to-end, respecting existing architecture, reusing existing components instead of duplicating them, updating tests, and validating build/lint/typecheck/tests before reporting completion. Use for the actual coding step — a multi-file feature ("implementa un módulo de X con endpoints Y/Z"), a new endpoint, a new module — after planning-implementation for non-trivial changes, or directly for something small.
+when_to_use: Use for the IMPLEMENT stage of any change once scope is understood (directly for trivial changes, after planning-implementation for larger ones) — including a direct build/implement request in any phrasing: "implementa X", "implement X", "build this feature", "añade un endpoint/módulo que haga X", "create/add a module for X", "write the code for X". A concrete feature or module request is this skill even when the word "implement" isn't used and even when it spans more than one file.
 ---
 
 # Implementing features

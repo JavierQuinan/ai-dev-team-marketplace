@@ -1,7 +1,7 @@
 ---
 name: planning-implementation
 description: Converts a feature or change request into a right-sized, executable technical plan covering scope, affected files, DB/API/frontend impact, tests, security, backwards compatibility, rollout and rollback. Use before implementing anything beyond a trivial, single-file change.
-when_to_use: Use when a request needs a plan before code — non-trivial features, cross-cutting changes, anything touching data or contracts. Skip for one-line fixes or trivial edits; go straight to implementing-features instead.
+when_to_use: Use when a request needs a plan before code — non-trivial features, cross-cutting changes, anything touching data or contracts — including a plain request for the plan itself: "dame un plan de implementación", "necesito un plan antes de implementar esto", "give me an implementation plan", "how would you implement this". Skip for one-line fixes or trivial edits; go straight to implementing-features instead.
 ---
 
 # Planning implementation
