@@ -206,3 +206,204 @@ test("script never writes any file (read-only contract)", () => {
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+// -- FIX 1: monorepo / nested manifest detection --------------------------
+
+test("SEC-SCRIPT-MONOREPO-01: a nested manifest with its own same-directory lockfile is detected correctly", () => {
+  const root = makeFixture();
+  try {
+    writeFile(root, "apps/web/package.json", '{"name":"web","version":"0.0.0"}');
+    writeFile(root, "apps/web/package-lock.json", '{"name":"web","lockfileVersion":3}');
+    const result = runInventory(root);
+
+    const eco = result.ecosystems.find((e) => e.manifest === "apps/web/package.json");
+    assert.ok(eco, "nested manifest must appear in ecosystems with its full path");
+    assert.equal(eco.lockfile_present, true);
+    assert.equal(eco.ecosystem, "node-npm");
+    assert.equal(signalsOf(result, "REPRODUCIBILITY_MISSING_LOCKFILE").length, 0);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("SEC-SCRIPT-MONOREPO-02: a nested Python ecosystem (pyproject.toml + uv.lock) is detected correctly", () => {
+  const root = makeFixture();
+  try {
+    writeFile(root, "services/api/pyproject.toml", "[project]\nname = \"api\"\n");
+    writeFile(root, "services/api/uv.lock", "# uv lock fixture\n");
+    const result = runInventory(root);
+
+    const eco = result.ecosystems.find((e) => e.manifest === "services/api/pyproject.toml");
+    assert.ok(eco, "nested pyproject.toml must appear in ecosystems with its full path");
+    assert.equal(eco.lockfile_present, true);
+    assert.equal(eco.ecosystem, "python-uv");
+    assert.equal(signalsOf(result, "REPRODUCIBILITY_MISSING_LOCKFILE").length, 0);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("SEC-SCRIPT-MONOREPO-03: a nested workspace member covered by a root lockfile does not get a false missing-lockfile signal", () => {
+  const root = makeFixture();
+  try {
+    writeFile(root, "package.json", '{"name":"root","private":true,"workspaces":["apps/*"]}');
+    writeFile(root, "package-lock.json", '{"name":"root","lockfileVersion":3}');
+    writeFile(root, "apps/web/package.json", '{"name":"web","version":"0.0.0"}');
+    const result = runInventory(root);
+
+    assert.equal(
+      signalsOf(result, "REPRODUCIBILITY_MISSING_LOCKFILE").length,
+      0,
+      "the nested manifest must be recognized as covered by the root workspace's lockfile"
+    );
+    const nestedEco = result.ecosystems.find((e) => e.manifest === "apps/web/package.json");
+    assert.ok(nestedEco);
+    assert.equal(nestedEco.lockfile_present, true);
+    assert.equal(nestedEco.lockfile_coverage, "ancestor-workspace-root");
+    assert.equal(nestedEco.lockfile, "package-lock.json");
+
+    const rootEco = result.ecosystems.find((e) => e.manifest === "package.json");
+    assert.ok(rootEco);
+    assert.equal(rootEco.lockfile_present, true);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("SEC-SCRIPT-MONOREPO-04: a nested manifest with no same-directory or valid ancestor lockfile gets exactly one scoped signal", () => {
+  const root = makeFixture();
+  try {
+    writeFile(root, "apps/web/package.json", '{"name":"web","version":"0.0.0"}');
+    const result = runInventory(root);
+
+    const found = signalsOf(result, "REPRODUCIBILITY_MISSING_LOCKFILE");
+    assert.equal(found.length, 1, "must be exactly one signal, not fanned out per candidate lockfile");
+    assert.equal(found[0].path, "apps/web/package.json");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+// -- FIX 2: quoted YAML `uses:` scalars ------------------------------------
+
+test("SEC-SCRIPT-GHA-QUOTE-01: a double-quoted, full-SHA-pinned action is NOT flagged", () => {
+  const root = makeFixture();
+  try {
+    const sha = "3d3c42e5aac5ba805825da76410c181273ba90b1";
+    writeFile(
+      root,
+      ".github/workflows/ci.yml",
+      `name: CI\non:\n  push:\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: "actions/checkout@${sha}" # v7.0.1\n`
+    );
+    const result = runInventory(root);
+    assert.equal(signalsOf(result, "GHA_UNPINNED_ACTION").length, 0);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("SEC-SCRIPT-GHA-QUOTE-02: a single-quoted, full-SHA-pinned action is NOT flagged", () => {
+  const root = makeFixture();
+  try {
+    const sha = "3d3c42e5aac5ba805825da76410c181273ba90b1";
+    writeFile(
+      root,
+      ".github/workflows/ci.yml",
+      `name: CI\non:\n  push:\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: 'actions/checkout@${sha}'\n`
+    );
+    const result = runInventory(root);
+    assert.equal(signalsOf(result, "GHA_UNPINNED_ACTION").length, 0);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("SEC-SCRIPT-GHA-QUOTE-03: a quoted floating-tag action is still correctly flagged", () => {
+  const root = makeFixture();
+  try {
+    writeFile(
+      root,
+      ".github/workflows/ci.yml",
+      `name: CI\non:\n  push:\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: "actions/checkout@v4" # comment must not leak into the ref\n`
+    );
+    const result = runInventory(root);
+    const found = signalsOf(result, "GHA_UNPINNED_ACTION");
+    assert.equal(found.length, 1);
+    assert.match(found[0].message, /actions\/checkout@v4/);
+    // The trailing comment/quote must never leak into the reported ref.
+    assert.doesNotMatch(found[0].message, /#/);
+    assert.doesNotMatch(found[0].message, /"/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+// -- FIX 3: workflow-level vs. job-level permissions -----------------------
+
+test("SEC-SCRIPT-PERM-01: a workflow-level explicit permissions block covers jobs with no permissions of their own", () => {
+  const root = makeFixture();
+  try {
+    writeFile(
+      root,
+      ".github/workflows/ci.yml",
+      "name: CI\non:\n  push:\npermissions:\n  contents: read\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo build\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo test\n"
+    );
+    const result = runInventory(root);
+    assert.equal(signalsOf(result, "GHA_NO_EXPLICIT_PERMISSIONS").length, 0);
+    assert.equal(signalsOf(result, "GHA_BROAD_PERMISSIONS").length, 0);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("SEC-SCRIPT-PERM-02: a job with no permissions and no workflow-level block is flagged specifically, a sibling job with its own explicit permissions is not", () => {
+  const root = makeFixture();
+  try {
+    writeFile(
+      root,
+      ".github/workflows/ci.yml",
+      "name: CI\non:\n  push:\njobs:\n  scoped:\n    runs-on: ubuntu-latest\n    permissions:\n      contents: read\n    steps:\n      - run: echo scoped\n  unscoped:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo unscoped\n"
+    );
+    const result = runInventory(root);
+    const found = signalsOf(result, "GHA_NO_EXPLICIT_PERMISSIONS");
+    assert.equal(found.length, 1, "exactly the uncovered job must be flagged, not the whole file, not the scoped job");
+    assert.equal(found[0].job, "unscoped");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("SEC-SCRIPT-PERM-03: a job-level 'permissions: write-all' is flagged and names that job", () => {
+  const root = makeFixture();
+  try {
+    writeFile(
+      root,
+      ".github/workflows/ci.yml",
+      "name: CI\non:\n  push:\njobs:\n  build:\n    runs-on: ubuntu-latest\n    permissions: write-all\n    steps:\n      - run: echo build\n"
+    );
+    const result = runInventory(root);
+    const found = signalsOf(result, "GHA_BROAD_PERMISSIONS");
+    assert.equal(found.length, 1);
+    assert.equal(found[0].job, "build");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("SEC-SCRIPT-PERM-04: a workflow-level 'permissions: write-all' is flagged once at workflow scope, not once per job", () => {
+  const root = makeFixture();
+  try {
+    writeFile(
+      root,
+      ".github/workflows/ci.yml",
+      "name: CI\non:\n  push:\npermissions: write-all\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo build\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo test\n"
+    );
+    const result = runInventory(root);
+    const found = signalsOf(result, "GHA_BROAD_PERMISSIONS");
+    assert.equal(found.length, 1, "must not fan out into one signal per job");
+    assert.equal(found[0].job, undefined, "this is a workflow-level finding, not scoped to one job");
+    assert.equal(signalsOf(result, "GHA_NO_EXPLICIT_PERMISSIONS").length, 0);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
