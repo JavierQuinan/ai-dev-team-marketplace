@@ -13,6 +13,10 @@
 // Contract: read-only, deterministic, offline (no network), no package
 // installs, no writes anywhere (not in the target repo, not in this
 // plugin's own directory), no secret values in output, Node built-ins only.
+// No external YAML parser -- GitHub Actions workflow YAML is scanned with a
+// narrowly-scoped, indentation-aware line parser sufficient for this file
+// shape, not a general YAML implementation. Where that parser can't safely
+// determine something, it reports a review signal rather than a guess.
 //
 // Usage:
 //   node devsecops-inventory.mjs --root <path> [--json]
@@ -83,7 +87,35 @@ function readText(root, relPath) {
   }
 }
 
-// -- Ecosystem / lockfile detection ------------------------------------
+// -- Path helpers (POSIX-style relative paths, as produced by walk()) ----
+
+function basenameOf(path) {
+  const idx = path.lastIndexOf("/");
+  return idx === -1 ? path : path.slice(idx + 1);
+}
+
+function dirOf(path) {
+  const idx = path.lastIndexOf("/");
+  return idx === -1 ? "" : path.slice(0, idx);
+}
+
+function joinRel(dir, name) {
+  return dir === "" ? name : `${dir}/${name}`;
+}
+
+// Ancestor directories of `dir`, nearest first, down to (and including) the
+// repository root (""). Excludes `dir` itself.
+function ancestorsOf(dir) {
+  if (dir === "") return [];
+  const parts = dir.split("/");
+  const ancestors = [];
+  for (let i = parts.length - 1; i >= 0; i--) {
+    ancestors.push(parts.slice(0, i).join("/"));
+  }
+  return ancestors;
+}
+
+// -- Ecosystem / lockfile detection (monorepo/workspace aware) -----------
 
 // Grouped by manifest: a manifest is reproducible if ANY ONE of its
 // candidate lockfiles is present (a project needs exactly one package
@@ -127,38 +159,68 @@ const MANIFEST_GROUPS = [
   },
 ];
 
-function detectEcosystems(root, files, signals) {
+// Detects manifests anywhere in the tree (not only at the repository root),
+// directory-aware. Coverage rule, applied in order, and never fanned out
+// into more than one missing-lockfile signal per manifest occurrence:
+//   1. same-directory lockfile;
+//   2. else the nearest ancestor directory that itself has BOTH a manifest
+//      of the same group AND one of its candidate lockfiles (i.e. a real
+//      workspace root for this ecosystem, not just any lockfile anywhere
+//      in the repo);
+//   3. else a missing-lockfile review signal scoped to this manifest path.
+function detectEcosystems(files, signals) {
   const fileSet = new Set(files);
   const detected = [];
 
   for (const group of MANIFEST_GROUPS) {
-    if (!fileSet.has(group.manifest)) continue;
-    const matched = group.candidates.filter((c) => fileSet.has(c.lockfile));
+    const manifestPaths = files.filter((f) => basenameOf(f) === group.manifest);
 
-    if (matched.length === 0) {
-      const candidateNames = group.candidates.map((c) => c.lockfile).join(" / ");
-      detected.push({
-        ecosystem: group.candidates[0].ecosystem,
-        manifest: group.manifest,
-        lockfile_present: false,
-        recommended_audit_tools: Array.from(new Set(group.candidates.map((c) => c.tool))),
-      });
-      signals.push({
-        rule_id: "REPRODUCIBILITY_MISSING_LOCKFILE",
-        category: "supply-chain",
-        path: group.manifest,
-        line: 0,
-        message: `${group.manifest} is present but none of its candidate lockfiles (${candidateNames}) were found -- dependency resolution may not be reproducible across installs.`,
-        classification: "review-signal",
-      });
-    } else {
-      for (const m of matched) {
+    for (const manifestPath of manifestPaths) {
+      const dir = dirOf(manifestPath);
+      let matched = group.candidates.filter((c) => fileSet.has(joinRel(dir, c.lockfile)));
+      let coverageDir = dir;
+      let coverage = matched.length > 0 ? "same-directory" : null;
+
+      if (matched.length === 0) {
+        for (const ancestor of ancestorsOf(dir)) {
+          if (!fileSet.has(joinRel(ancestor, group.manifest))) continue;
+          const ancMatched = group.candidates.filter((c) => fileSet.has(joinRel(ancestor, c.lockfile)));
+          if (ancMatched.length > 0) {
+            matched = ancMatched;
+            coverageDir = ancestor;
+            coverage = "ancestor-workspace-root";
+            break;
+          }
+        }
+      }
+
+      if (matched.length === 0) {
+        const candidateNames = group.candidates.map((c) => c.lockfile).join(" / ");
         detected.push({
-          ecosystem: m.ecosystem,
-          manifest: group.manifest,
-          lockfile_present: true,
-          recommended_audit_tools: [m.tool],
+          ecosystem: group.candidates[0].ecosystem,
+          manifest: manifestPath,
+          lockfile_present: false,
+          recommended_audit_tools: Array.from(new Set(group.candidates.map((c) => c.tool))),
         });
+        signals.push({
+          rule_id: "REPRODUCIBILITY_MISSING_LOCKFILE",
+          category: "supply-chain",
+          path: manifestPath,
+          line: 0,
+          message: `${manifestPath} is present but none of its candidate lockfiles (${candidateNames}) were found in the same directory or a covering ancestor workspace root -- dependency resolution may not be reproducible across installs.`,
+          classification: "review-signal",
+        });
+      } else {
+        for (const m of matched) {
+          detected.push({
+            ecosystem: m.ecosystem,
+            manifest: manifestPath,
+            lockfile: joinRel(coverageDir, m.lockfile),
+            lockfile_present: true,
+            lockfile_coverage: coverage,
+            recommended_audit_tools: [m.tool],
+          });
+        }
       }
     }
   }
@@ -167,20 +229,99 @@ function detectEcosystems(root, files, signals) {
 
 // -- GitHub Actions workflow scanning ------------------------------------
 
+// Strips one layer of matching outer YAML scalar quotes ("..." or '...').
+// Deliberately narrow: only removes quotes when the *whole* remaining
+// scalar is wrapped in them, never a global quote-character strip (which
+// would corrupt local-action paths or anything else containing a quote).
+function stripOuterQuotes(s) {
+  if (s.length >= 2) {
+    const first = s[0];
+    const last = s[s.length - 1];
+    if ((first === '"' && last === '"') || (first === "'" && last === "'")) {
+      return s.slice(1, -1);
+    }
+  }
+  return s;
+}
+
+// Narrowly-scoped indentation tracker for GitHub Actions workflow shape
+// only (not a general YAML parser): distinguishes workflow-level
+// `permissions:` (a root key, column 0) from a specific job's own
+// `permissions:` block, so one job's explicit scoped permissions can never
+// silently suppress the "no explicit permissions" signal for a sibling job
+// that has none and isn't covered by a workflow-level block either.
+function analyzeJobPermissions(lines) {
+  const workflow = { explicit: false, writeAll: false, line: 0 };
+  const jobs = [];
+  let jobsIndent = null;
+  let jobNameIndent = null;
+  let currentJob = null;
+
+  lines.forEach((rawLine, idx) => {
+    const lineNo = idx + 1;
+    if (!rawLine.trim()) return;
+    const indent = rawLine.match(/^ */)[0].length;
+    const trimmed = rawLine.trim();
+
+    if (indent === 0 && /^jobs\s*:/.test(trimmed)) {
+      jobsIndent = indent;
+      currentJob = null;
+      return;
+    }
+
+    if (indent === 0 && /^permissions\s*:/.test(trimmed)) {
+      workflow.explicit = true;
+      workflow.line = lineNo;
+      if (/write-all\b/.test(trimmed)) workflow.writeAll = true;
+      currentJob = null;
+      return;
+    }
+
+    if (indent === 0) {
+      // Any other root key ends whatever job context we were in.
+      currentJob = null;
+    }
+
+    if (jobsIndent !== null && jobNameIndent === null && indent > jobsIndent) {
+      if (/^[A-Za-z0-9_.-]+\s*:/.test(trimmed)) {
+        jobNameIndent = indent;
+      }
+    }
+
+    if (jobNameIndent !== null && indent === jobNameIndent) {
+      const m = trimmed.match(/^([A-Za-z0-9_.-]+)\s*:/);
+      if (m) {
+        currentJob = { name: m[1], indent: jobNameIndent, explicit: false, writeAll: false, line: lineNo };
+        jobs.push(currentJob);
+        return;
+      }
+    }
+
+    if (jobsIndent !== null && jobNameIndent !== null && indent <= jobsIndent) {
+      currentJob = null;
+    }
+
+    if (currentJob && indent > currentJob.indent && /^permissions\s*:/.test(trimmed)) {
+      currentJob.explicit = true;
+      currentJob.line = lineNo;
+      if (/write-all\b/.test(trimmed)) currentJob.writeAll = true;
+    }
+  });
+
+  return { workflow, jobs, jobsDetected: jobsIndent !== null && jobNameIndent !== null };
+}
+
 function scanWorkflow(root, relPath, signals) {
   const text = readText(root, relPath);
   if (text === null) return;
   const lines = text.split("\n");
-
-  let hasExplicitPermissions = false;
-  let hasWriteAll = false;
 
   lines.forEach((line, idx) => {
     const lineNo = idx + 1;
 
     const usesMatch = line.match(/^\s*-?\s*uses:\s*([^\s#]+)/);
     if (usesMatch) {
-      const ref = usesMatch[1];
+      const ref = stripOuterQuotes(usesMatch[1]);
       // Local actions (./path) and Docker actions (docker://...) don't
       // pin the same way -- not applicable to the SHA-pinning check.
       if (!ref.startsWith("./") && !ref.startsWith("docker://")) {
@@ -201,12 +342,6 @@ function scanWorkflow(root, relPath, signals) {
       }
     }
 
-    if (/^\s*permissions\s*:/.test(line)) {
-      hasExplicitPermissions = true;
-      if (/write-all/.test(line)) hasWriteAll = true;
-    }
-    if (/^\s*permissions\s*:\s*write-all\b/.test(line)) hasWriteAll = true;
-
     if (/pull_request_target/.test(line)) {
       signals.push({
         rule_id: "GHA_PULL_REQUEST_TARGET",
@@ -220,22 +355,60 @@ function scanWorkflow(root, relPath, signals) {
     }
   });
 
-  if (hasWriteAll) {
+  const perms = analyzeJobPermissions(lines);
+
+  if (perms.workflow.writeAll) {
     signals.push({
       rule_id: "GHA_BROAD_PERMISSIONS",
       category: "ci-security",
       path: relPath,
-      line: 0,
-      message: "Workflow declares 'permissions: write-all' -- broader than least privilege; review whether every job actually needs write access.",
+      line: perms.workflow.line,
+      message: "Workflow declares 'permissions: write-all' at the workflow level -- broader than least privilege; review whether every job actually needs write access.",
       classification: "review-signal",
     });
-  } else if (!hasExplicitPermissions) {
+  }
+
+  if (!perms.jobsDetected) {
+    // Couldn't reliably locate per-job structure (e.g. no jobs: block, or a
+    // shape this narrowly-scoped parser doesn't recognize) -- fall back to
+    // the whole-file signal rather than guessing per-job scope.
+    if (!perms.workflow.explicit) {
+      signals.push({
+        rule_id: "GHA_NO_EXPLICIT_PERMISSIONS",
+        category: "ci-security",
+        path: relPath,
+        line: 0,
+        message: "Workflow declares no explicit 'permissions' block -- the effective permissions come from repo/org defaults, which this script cannot see; not a confirmed issue, just something to verify.",
+        classification: "review-signal",
+      });
+    }
+    return;
+  }
+
+  for (const job of perms.jobs) {
+    if (job.writeAll) {
+      signals.push({
+        rule_id: "GHA_BROAD_PERMISSIONS",
+        category: "ci-security",
+        path: relPath,
+        line: job.line,
+        job: job.name,
+        message: `Job '${job.name}' declares 'permissions: write-all' -- broader than least privilege; review whether it actually needs write access.`,
+        classification: "review-signal",
+      });
+      continue;
+    }
+    if (job.explicit) continue; // this job's own scoped permissions apply, nothing to flag
+    if (perms.workflow.explicit && !perms.workflow.writeAll) continue; // inherits an explicit, scoped workflow-level block
+    if (perms.workflow.explicit && perms.workflow.writeAll) continue; // already covered by the workflow-level write-all signal above
+
     signals.push({
       rule_id: "GHA_NO_EXPLICIT_PERMISSIONS",
       category: "ci-security",
       path: relPath,
-      line: 0,
-      message: "Workflow declares no explicit 'permissions' block -- the effective permissions come from repo/org defaults, which this script cannot see; not a confirmed issue, just something to verify.",
+      line: job.line,
+      job: job.name,
+      message: `Job '${job.name}' has no explicit permissions and the workflow has no workflow-level permissions block; effective permissions depend on repository/organization defaults.`,
       classification: "review-signal",
     });
   }
@@ -319,7 +492,7 @@ function main() {
   walk(root, root, files);
 
   const signals = [];
-  const ecosystems = detectEcosystems(root, files, signals);
+  const ecosystems = detectEcosystems(files, signals);
   const workflowFiles = scanGithubActions(root, files, signals);
   const sensitiveFileCheck = scanSensitiveFilenames(root, signals);
   const dockerfiles = scanDockerfiles(root, files, signals);
@@ -346,6 +519,7 @@ function main() {
       "This inventory reports deterministic review signals only -- it is not a vulnerability scanner and does not consult any CVE/advisory database.",
       "No signal here is a 'confirmed vulnerability' by itself; auditing-security inspects each signal's actual context before classifying it.",
       "This script never reads or reports the *content* of source files -- only manifest/lockfile presence, GitHub Actions workflow YAML, tracked filenames, and Dockerfile USER presence.",
+      "Ecosystem detection is directory/workspace-aware: a nested manifest is matched against a same-directory lockfile first, then a covering ancestor workspace root (one that has both a manifest of the same kind and a matching lockfile), before being reported as missing one.",
     ],
   };
 
