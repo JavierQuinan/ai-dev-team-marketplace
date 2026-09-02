@@ -46,11 +46,14 @@ jobs:
           fi
           echo "No obvious secret patterns found."
 
-      # actions/setup-node v7.0.0 — SHA-pinned; needed only to install the official Claude Code CLI below.
+      # actions/setup-node v7.0.0 — SHA-pinned; needed for the DevSecOps script tests below and to install the official Claude Code CLI.
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "22"
+
+      - name: Run DevSecOps inventory script tests (Node built-in test runner, no dependencies)
+        run: node --test tests/devsecops_inventory.test.mjs
 
       # Official schema authority for marketplace.json / plugin.json / component paths.
       # No Anthropic credentials are used or required for `claude plugin validate` — verified locally
