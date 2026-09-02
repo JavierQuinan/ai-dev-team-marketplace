@@ -407,3 +407,139 @@ test("SEC-SCRIPT-PERM-04: a workflow-level 'permissions: write-all' is flagged o
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+// -- Workspace-membership verification for ancestor lockfile coverage -----
+
+test("SEC-SCRIPT-WORKSPACE-01: a workspace member matching a declared pattern is covered by the root lockfile", () => {
+  const root = makeFixture();
+  try {
+    writeFile(root, "package.json", JSON.stringify({ name: "root", private: true, workspaces: ["apps/*"] }));
+    writeFile(root, "package-lock.json", '{"name":"root","lockfileVersion":3}');
+    writeFile(root, "apps/web/package.json", '{"name":"web","version":"0.0.0"}');
+
+    const result = runInventory(root);
+    assert.equal(signalsOf(result, "REPRODUCIBILITY_MISSING_LOCKFILE").length, 0);
+    const eco = result.ecosystems.find((e) => e.manifest === "apps/web/package.json");
+    assert.ok(eco);
+    assert.equal(eco.lockfile_present, true);
+    assert.equal(eco.lockfile_coverage, "ancestor-workspace-root");
+    assert.equal(eco.lockfile_coverage_workspace_pattern, "apps/*");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("SEC-SCRIPT-WORKSPACE-02 (mandatory negative): an independent nested package under a root with NO workspaces field is never covered by the root lockfile", () => {
+  const root = makeFixture();
+  try {
+    writeFile(root, "package.json", JSON.stringify({ name: "root" }));
+    writeFile(root, "package-lock.json", '{"name":"root","lockfileVersion":3}');
+    writeFile(root, "tools/cli/package.json", '{"name":"cli","version":"0.0.0"}');
+
+    const result = runInventory(root);
+    const found = signalsOf(result, "REPRODUCIBILITY_MISSING_LOCKFILE");
+    assert.equal(found.length, 1, "tools/cli must get its own missing-lockfile signal, not silently inherit the root's");
+    assert.equal(found[0].path, "tools/cli/package.json");
+    const eco = result.ecosystems.find((e) => e.manifest === "tools/cli/package.json");
+    assert.equal(eco.lockfile_present, false);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("SEC-SCRIPT-WORKSPACE-03: a nested package outside the root's declared workspace patterns is not covered even though the root declares workspaces elsewhere", () => {
+  const root = makeFixture();
+  try {
+    writeFile(root, "package.json", JSON.stringify({ name: "root", private: true, workspaces: ["apps/*"] }));
+    writeFile(root, "package-lock.json", '{"name":"root","lockfileVersion":3}');
+    writeFile(root, "tools/cli/package.json", '{"name":"cli","version":"0.0.0"}');
+
+    const result = runInventory(root);
+    const found = signalsOf(result, "REPRODUCIBILITY_MISSING_LOCKFILE");
+    assert.equal(found.length, 1);
+    assert.equal(found[0].path, "tools/cli/package.json");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("SEC-SCRIPT-WORKSPACE-04: a workspace member with its own same-directory lockfile uses that, not ancestor coverage", () => {
+  const root = makeFixture();
+  try {
+    writeFile(root, "package.json", JSON.stringify({ name: "root", private: true, workspaces: ["apps/*"] }));
+    writeFile(root, "package-lock.json", '{"name":"root","lockfileVersion":3}');
+    writeFile(root, "apps/web/package.json", '{"name":"web","version":"0.0.0"}');
+    writeFile(root, "apps/web/package-lock.json", '{"name":"web","lockfileVersion":3}');
+
+    const result = runInventory(root);
+    const eco = result.ecosystems.find((e) => e.manifest === "apps/web/package.json");
+    assert.ok(eco);
+    assert.equal(eco.lockfile_coverage, "same-directory");
+    assert.equal(eco.lockfile, "apps/web/package-lock.json");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("SEC-SCRIPT-WORKSPACE-05: the nearest verified workspace root wins over a more distant one", () => {
+  const root = makeFixture();
+  try {
+    // Outer repo root: its own workspaces do NOT include packages/platform/apps/*.
+    writeFile(root, "package.json", JSON.stringify({ name: "root", private: true, workspaces: ["services/*"] }));
+    writeFile(root, "package-lock.json", '{"name":"root","lockfileVersion":3}');
+    // Nested workspace root: packages/platform IS its own workspace root for apps/*.
+    writeFile(
+      root,
+      "packages/platform/package.json",
+      JSON.stringify({ name: "platform", private: true, workspaces: ["apps/*"] })
+    );
+    writeFile(root, "packages/platform/package-lock.json", '{"name":"platform","lockfileVersion":3}');
+    writeFile(root, "packages/platform/apps/admin/package.json", '{"name":"admin","version":"0.0.0"}');
+
+    const result = runInventory(root);
+    assert.equal(signalsOf(result, "REPRODUCIBILITY_MISSING_LOCKFILE").length, 0);
+    const eco = result.ecosystems.find((e) => e.manifest === "packages/platform/apps/admin/package.json");
+    assert.ok(eco);
+    assert.equal(eco.lockfile_coverage, "ancestor-workspace-root");
+    assert.equal(eco.lockfile, "packages/platform/package-lock.json", "must be covered by the nearest verified root, not the outer one");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("SEC-SCRIPT-WORKSPACE-06: pnpm workspace membership is verified via pnpm-workspace.yaml, not assumed from the lockfile alone", () => {
+  const root = makeFixture();
+  try {
+    writeFile(root, "package.json", JSON.stringify({ name: "root", private: true }));
+    writeFile(root, "pnpm-lock.yaml", "lockfileVersion: '9.0'\n");
+    writeFile(root, "pnpm-workspace.yaml", "packages:\n  - 'apps/*'\n  - 'packages/*'\n");
+    writeFile(root, "apps/web/package.json", '{"name":"web","version":"0.0.0"}');
+    writeFile(root, "tools/cli/package.json", '{"name":"cli","version":"0.0.0"}');
+
+    const result = runInventory(root);
+    const webEco = result.ecosystems.find((e) => e.manifest === "apps/web/package.json");
+    assert.ok(webEco);
+    assert.equal(webEco.lockfile_present, true);
+    assert.equal(webEco.lockfile_coverage, "ancestor-workspace-root");
+
+    const cliSignals = signalsOf(result, "REPRODUCIBILITY_MISSING_LOCKFILE").filter((s) => s.path === "tools/cli/package.json");
+    assert.equal(cliSignals.length, 1, "tools/cli is outside the pnpm-workspace.yaml patterns and must not be covered");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("SEC-SCRIPT-WORKSPACE-07: other ecosystems (Python) never get ancestor coverage, even with a plausible-looking ancestor lockfile", () => {
+  const root = makeFixture();
+  try {
+    writeFile(root, "pyproject.toml", "[project]\nname = \"root\"\n");
+    writeFile(root, "uv.lock", "# root lock\n");
+    writeFile(root, "services/sub/pyproject.toml", "[project]\nname = \"sub\"\n");
+
+    const result = runInventory(root);
+    const found = signalsOf(result, "REPRODUCIBILITY_MISSING_LOCKFILE").filter((s) => s.path === "services/sub/pyproject.toml");
+    assert.equal(found.length, 1, "a Python ancestor lockfile must never be assumed to cover a nested pyproject.toml");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
