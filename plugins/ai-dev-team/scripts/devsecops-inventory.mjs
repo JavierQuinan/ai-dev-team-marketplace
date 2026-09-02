@@ -115,6 +115,127 @@ function ancestorsOf(dir) {
   return ancestors;
 }
 
+// -- Workspace-membership evidence (npm/yarn/bun -- and pnpm where its own
+// -- config is readable), used only to decide whether a nested manifest may
+// -- inherit an ancestor's lockfile. Reading a specific manifest/workspace
+// -- config file is allowed for this determination; this never reads or
+// -- inspects general source file content.
+
+function readJsonManifest(root, relPath) {
+  const text = readText(root, relPath);
+  if (text === null) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
+// "workspaces": ["apps/*", "packages/*"]  or  "workspaces": {"packages": [...]}.
+// Returns null when there's no recognizable workspaces field -- i.e. no
+// membership evidence, not "covers everything" and not "covers nothing."
+function extractNpmWorkspacePatterns(manifestObj) {
+  if (!manifestObj || typeof manifestObj !== "object") return null;
+  const ws = manifestObj.workspaces;
+  if (Array.isArray(ws)) {
+    const patterns = ws.filter((p) => typeof p === "string");
+    return patterns.length > 0 ? patterns : null;
+  }
+  if (ws && typeof ws === "object" && Array.isArray(ws.packages)) {
+    const patterns = ws.packages.filter((p) => typeof p === "string");
+    return patterns.length > 0 ? patterns : null;
+  }
+  return null;
+}
+
+// Minimal, deterministic reader for pnpm's own workspace config:
+//   packages:
+//     - 'apps/*'
+//     - 'packages/*'
+// Not a general YAML parser -- recognizes exactly this list-under-key shape
+// and nothing else; any other structure yields no evidence (conservative
+// fallback), never a guess.
+function extractPnpmWorkspacePatterns(root, ancestorDir) {
+  const text = readText(root, joinRel(ancestorDir, "pnpm-workspace.yaml"));
+  if (text === null) return null;
+  const lines = text.split("\n");
+  let inPackages = false;
+  const patterns = [];
+  for (const rawLine of lines) {
+    const line = rawLine.replace(/\r$/, "");
+    if (/^packages\s*:\s*(#.*)?$/.test(line)) {
+      inPackages = true;
+      continue;
+    }
+    if (inPackages) {
+      const item = line.match(/^\s+-\s*(.+?)\s*(#.*)?$/);
+      if (item) {
+        patterns.push(stripOuterQuotes(item[1].trim()));
+        continue;
+      }
+      if (/^\S/.test(line)) inPackages = false; // dedented back out of the list
+    }
+  }
+  return patterns.length > 0 ? patterns : null;
+}
+
+// Deterministic, single-segment-wildcard matcher only -- "*" matches
+// exactly one path segment (e.g. "apps/*", "packages/*/client", or an
+// explicit literal path). No recursive "**", no partial-segment globs
+// ("web-*"); a pattern outside this shape simply never matches, which is
+// the conservative direction (misses a real member rather than wrongly
+// claiming coverage for an unrelated directory).
+function matchesWorkspacePattern(relDir, pattern) {
+  const patternSegs = pattern.replace(/\/+$/, "").split("/");
+  const dirSegs = relDir === "" ? [] : relDir.split("/");
+  if (patternSegs.length !== dirSegs.length) return false;
+  for (let i = 0; i < patternSegs.length; i++) {
+    if (patternSegs[i] === "*") continue;
+    if (patternSegs[i] !== dirSegs[i]) return false;
+  }
+  return true;
+}
+
+// Walks ancestors nearest-first looking for one that both (a) has a
+// manifest of this group plus a matching lockfile, AND (b) has actual,
+// parseable workspace-membership evidence that includes this nested
+// manifest's directory. An ancestor with a manifest+lockfile but no
+// workspace evidence -- or evidence that doesn't include this path -- is
+// never treated as coverage; the search continues further up rather than
+// assuming. Only supported for the package.json (npm/yarn/bun/pnpm) group
+// -- other ecosystems have no deterministic membership signal implemented
+// here and get same-directory-only coverage instead (see detectEcosystems).
+function findVerifiedAncestorCoverage(root, dir, group, fileSet) {
+  if (group.manifest !== "package.json") return null;
+
+  for (const ancestor of ancestorsOf(dir)) {
+    if (!fileSet.has(joinRel(ancestor, group.manifest))) continue;
+    const ancMatched = group.candidates.filter((c) => fileSet.has(joinRel(ancestor, c.lockfile)));
+    if (ancMatched.length === 0) continue;
+
+    const relDir = ancestor === "" ? dir : dir.slice(ancestor.length + 1);
+
+    let patterns = null;
+    if (ancMatched.some((m) => m.lockfile === "pnpm-lock.yaml")) {
+      patterns = extractPnpmWorkspacePatterns(root, ancestor);
+    }
+    if (patterns === null) {
+      patterns = extractNpmWorkspacePatterns(readJsonManifest(root, joinRel(ancestor, group.manifest)));
+    }
+
+    if (!patterns) continue; // no deterministic membership evidence here -- keep looking further up
+
+    const matchedPattern = patterns.find((p) => matchesWorkspacePattern(relDir, p));
+    if (matchedPattern) {
+      return { matched: ancMatched, coverageDir: ancestor, pattern: matchedPattern };
+    }
+    // This ancestor's workspace config is readable but doesn't claim this
+    // directory -- not a member here; a more distant root might still
+    // claim it, so keep walking rather than stopping on this negative.
+  }
+  return null;
+}
+
 // -- Ecosystem / lockfile detection (monorepo/workspace aware) -----------
 
 // Grouped by manifest: a manifest is reproducible if ANY ONE of its
@@ -163,12 +284,18 @@ const MANIFEST_GROUPS = [
 // directory-aware. Coverage rule, applied in order, and never fanned out
 // into more than one missing-lockfile signal per manifest occurrence:
 //   1. same-directory lockfile;
-//   2. else the nearest ancestor directory that itself has BOTH a manifest
-//      of the same group AND one of its candidate lockfiles (i.e. a real
-//      workspace root for this ecosystem, not just any lockfile anywhere
-//      in the repo);
+//   2. else, for the package.json (npm/yarn/bun/pnpm) group ONLY, the
+//      nearest ancestor directory that both has a manifest+lockfile of the
+//      same group AND has deterministic, parseable workspace-membership
+//      evidence (npm/yarn/bun "workspaces", or pnpm-workspace.yaml) that
+//      actually includes this manifest's directory -- proximity plus a
+//      same-type manifest+lockfile is never sufficient by itself, since an
+//      independent nested project can legitimately sit under an unrelated
+//      root. Other ecosystems (Python, Cargo, Go, Ruby) have no
+//      deterministic membership signal implemented here and get
+//      same-directory-only coverage;
 //   3. else a missing-lockfile review signal scoped to this manifest path.
-function detectEcosystems(files, signals) {
+function detectEcosystems(root, files, signals) {
   const fileSet = new Set(files);
   const detected = [];
 
@@ -180,17 +307,15 @@ function detectEcosystems(files, signals) {
       let matched = group.candidates.filter((c) => fileSet.has(joinRel(dir, c.lockfile)));
       let coverageDir = dir;
       let coverage = matched.length > 0 ? "same-directory" : null;
+      let coveragePattern = null;
 
       if (matched.length === 0) {
-        for (const ancestor of ancestorsOf(dir)) {
-          if (!fileSet.has(joinRel(ancestor, group.manifest))) continue;
-          const ancMatched = group.candidates.filter((c) => fileSet.has(joinRel(ancestor, c.lockfile)));
-          if (ancMatched.length > 0) {
-            matched = ancMatched;
-            coverageDir = ancestor;
-            coverage = "ancestor-workspace-root";
-            break;
-          }
+        const verified = findVerifiedAncestorCoverage(root, dir, group, fileSet);
+        if (verified) {
+          matched = verified.matched;
+          coverageDir = verified.coverageDir;
+          coverage = "ancestor-workspace-root";
+          coveragePattern = verified.pattern;
         }
       }
 
@@ -218,6 +343,7 @@ function detectEcosystems(files, signals) {
             lockfile: joinRel(coverageDir, m.lockfile),
             lockfile_present: true,
             lockfile_coverage: coverage,
+            ...(coveragePattern ? { lockfile_coverage_workspace_pattern: coveragePattern } : {}),
             recommended_audit_tools: [m.tool],
           });
         }
@@ -492,7 +618,7 @@ function main() {
   walk(root, root, files);
 
   const signals = [];
-  const ecosystems = detectEcosystems(files, signals);
+  const ecosystems = detectEcosystems(root, files, signals);
   const workflowFiles = scanGithubActions(root, files, signals);
   const sensitiveFileCheck = scanSensitiveFilenames(root, signals);
   const dockerfiles = scanDockerfiles(root, files, signals);
