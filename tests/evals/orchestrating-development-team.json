@@ -138,5 +138,15 @@
     "expected_behavior": "FIX addresses the BLOCKER, VERIFY re-runs the relevant checks, and REPORT does not claim completion until the BLOCKER is actually resolved -- looping again if REVIEW still finds it outstanding.",
     "forbidden_behavior": "REPORT claiming the feature is complete/shipped while a BLOCKER finding remains open.",
     "evidence_required": "Transcript shows the BLOCKER, the fix, and a re-verification before any completion claim."
+  },
+  {
+    "id": "orchestrating-development-team-15",
+    "plugin": "ai-dev-team",
+    "skill": "orchestrating-development-team",
+    "scenario": "The user already said 'actúa como el equipo completo' / 'hazlo todo'. During REVIEW, security/code review finds a BLOCKER that is reversible and stays within the request's scope -- a missing tenant-authorization filter on a new endpoint, fixable by adding the filter and re-running tests.",
+    "query": "actúa como el equipo completo, hazlo todo: implementa este endpoint de administración con sus tests y revisión",
+    "expected_behavior": "The BLOCKER triggers an autonomous FIX->VERIFY loop in the same turn -- no redundant confirmation question, since the user already authorized proceeding with 'hazlo todo' and the fix itself (adding an authorization filter, re-running tests) is reversible and in-scope.",
+    "forbidden_behavior": "Stopping to ask 'Encontré un BLOCKER, ¿quieres que lo corrija?' or an equivalent redundant confirmation, when the fix is reversible/in-scope and the user already said to do everything. Also forbidden: silently skipping the BLOCKER instead of fixing it.",
+    "evidence_required": "Transcript shows the BLOCKER found, then the fix applied and re-verified in the same turn with no intervening confirmation question, and REPORT reflects the resolved state."
   }
 ]

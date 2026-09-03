@@ -4,7 +4,9 @@ Deep, platform-specific patterns for `planning-deployment`, loaded once a target
 
 ## A. Vercel
 
-Evidence: `vercel.json`, a framework Vercel auto-detects (Next.js/etc.) with no conflicting config, `.vercel/` directory.
+**Evidence must be Vercel-specific, not merely framework-compatible.** `vercel.json`, `.vercel/project.json` (or a `.vercel/` directory generally), a CI/deploy job that actually invokes `vercel`/the Vercel API, or deployment docs explicitly naming Vercel. A framework Vercel happens to auto-detect (Next.js, etc.) is **not evidence by itself** — that same Next.js app can just as legitimately deploy to Docker, a VPS, AWS/Azure/GCP, Netlify, or Kubernetes, and framework compatibility says nothing about which target this specific repo actually uses. Never infer Vercel from the framework alone.
+
+The user may also explicitly name Vercel as the target even when the repo has no Vercel config yet ("despliega esto en Vercel") — that's valid, but state it as **TARGET PROVIDED BY USER, not repo-verified**, never presented as if the repo's own evidence confirmed it.
 
 - **Preconditions**: build passes locally/in CI, correct project linked (`vercel link` already run — check for `.vercel/project.json`, don't re-link).
 - **Build command**: read from `vercel.json`/framework defaults/`package.json` scripts — state what was actually found, not a guessed default.
