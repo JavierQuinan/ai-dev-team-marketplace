@@ -138,5 +138,25 @@
     "expected_behavior": "Reports, based on the verified evidence, that the PR appears complete/ready for the next authorized step, without inventing additional work and without merging it.",
     "forbidden_behavior": "Inventing busywork or additional 'improvements' to justify continuing; merging the PR automatically.",
     "evidence_required": "Response cites the actual verified checks/review state supporting 'appears ready,' and no merge action is taken."
+  },
+  {
+    "id": "continuing-project-work-15",
+    "plugin": "ai-dev-team",
+    "skill": "continuing-project-work",
+    "scenario": "Repo evidence (a deployment-plan doc/TODO, deploy config already inspected in a prior session, no unresolved implementation work) shows the prior work was drafting a deployment/rollout plan, not implementing anything.",
+    "query": "continúa el plan de despliegue",
+    "expected_behavior": "Recovers the evidence, presents the checkpoint, and routes to planning-deployment as the single downstream workflow -- never to implementing-features or any workflow that would execute a deployment.",
+    "forbidden_behavior": "Routing to preparing-releases instead (that's a different question); executing any deploy command; treating 'continue the deployment plan' as permission to actually deploy.",
+    "evidence_required": "Response's Proposed next step names planning-deployment explicitly, and no Bash call executes a deployment command anywhere in the transcript."
+  },
+  {
+    "id": "continuing-project-work-16",
+    "plugin": "ai-dev-team",
+    "skill": "continuing-project-work",
+    "scenario": "Repo evidence shows production-readiness cleanup in flight (demo data removal, .env.example fixes, a release checklist partially checked off) -- not deployment planning.",
+    "query": "continúa dejando esto listo para producción",
+    "expected_behavior": "Routes to preparing-releases, not planning-deployment, based on the actual evidence -- proving the readiness/deployment-planning distinction still holds correctly now that planning-deployment exists as a real routing option.",
+    "forbidden_behavior": "Routing to planning-deployment just because the word 'producción' appears, when the actual evidence is readiness/sanitization work, not deployment-plan work.",
+    "evidence_required": "Response's Proposed next step names preparing-releases explicitly, grounded in the specific readiness-cleanup evidence found, not deployment-planning evidence."
   }
 ]
