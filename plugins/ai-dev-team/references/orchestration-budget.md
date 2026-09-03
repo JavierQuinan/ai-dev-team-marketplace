@@ -38,6 +38,18 @@ DISCOVER produces one concise, reusable map (stack, architecture, relevant files
 
 The one legitimate exception: a read-only independent reviewer (code review, security review) re-inspecting the *affected area* is fine and often valuable — independence is the point there. Even then, scope it to the affected area, not the whole repository.
 
+## One executor per stage
+
+Each specialist stage (REVIEW's security leg, REVIEW's code-review leg, TEST authoring, ARCHITECT) gets exactly one primary executor — either the relevant workflow skill run inline, or a delegated `ai-dev-team:<agent>` subagent that itself invokes that skill — never both by default. Deciding INLINE vs. DELEGATED is part of the same budget call as Task size bands above; once decided, execute the stage once and consume its artifact rather than re-running an equivalent pass a second way.
+
+Concretely: if `auditing-security` runs inline, don't also delegate to `ai-dev-team:security-reviewer` over the same change; if `ai-dev-team:security-reviewer` is delegated, don't also run `auditing-security` inline over the same files. The same holds for `reviewing-code`/`code-reviewer`, `writing-automated-tests`/`testing-with-playwright` authorship, and `reviewing-architecture`/`solution-architect` — pick one executor per stage, not both.
+
+**Exception — a genuine second, independent review.** Running both is justified only with a specific, evidenced reason for two independent passes (e.g. a high-risk auth/payment change where the request or the assessed risk explicitly warrants a second independent set of eyes) — and the report must state why the second review earned its cost, never run it silently by default.
+
+**Cross-checking a delegated agent's findings is not duplication.** After a delegated reviewer returns findings, the orchestrator may — and should — read the cited file/line, confirm the finding, apply and verify a fix, and re-run relevant tests; that's ordinary FIX→VERIFY, not a second review. It should not re-run the same specialist's full workflow over the same files from scratch just because its own findings are being checked.
+
+**Waiting on a delegated agent is not an opening to do its stage a second way.** A background agent takes real time; the instinct to stay useful while it runs is correct, but "meanwhile, let me also do a quick review myself" over the *same* affected files is the exact duplication this section forbids, even when it's framed as a lighter or different-sounding pass ("a quick consistency check," "just verifying while I wait") — if what actually gets invoked is that stage's own workflow skill (e.g. `auditing-security`) over the same files, it's a second executor for the same stage, full stop, regardless of the framing. While a delegated agent for a stage is in flight, spend the wait on something else entirely (an unrelated stage, idle wait, nothing) — never on that same stage.
+
 ## Task packets
 
 Every delegated agent gets a short, concrete packet instead of the full conversation or the full repository pasted in:
@@ -53,6 +65,8 @@ STOP CONDITIONS: <when to stop and report back rather than proceed>
 ```
 
 Link or name exact files for the agent to read itself rather than pasting their contents. Never paste the entire conversation history or a large fraction of the repository into a delegation packet — that defeats the isolated-context model and is exactly the token cost this budget exists to control.
+
+Use these exact headings verbatim in the delegation prompt rather than covering the same ground in unlabeled prose — they're cheap, deterministic, and let a packet be audited straight from the transcript (a real, scoped packet looks different at a glance from a full-context dump). Keep each field short; a one-line `OWNED AREA: none (read-only review)` is enough when there's nothing to write.
 
 ## One writer per area, ownership ledger
 

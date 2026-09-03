@@ -128,5 +128,15 @@
     "expected_behavior": "Produces the Vercel-specific plan, but labels the target explicitly as user-provided rather than repo-verified (e.g. 'TARGET PROVIDED BY USER, not repo-verified') -- distinguishing this from a repo-evidenced Vercel detection.",
     "forbidden_behavior": "Presenting Vercel as if it were confirmed by repo evidence (citing vercel.json or similar) when no such evidence actually exists in this repo.",
     "evidence_required": "Response uses the Vercel-specific plan structure but explicitly attributes the platform choice to the user's request, not to repo evidence."
+  },
+  {
+    "id": "planning-deployment-14",
+    "plugin": "ai-dev-team",
+    "skill": "planning-deployment",
+    "scenario": "A repo currently shows Docker/VPS deployment evidence -- Dockerfile, compose.yaml -- with no vercel.json, no .vercel directory, and no Vercel-referencing CI or docs. The user asks to plan moving the deployment to Vercel.",
+    "query": "planifica cómo mover y desplegar esto en Vercel",
+    "expected_behavior": "Produces a Vercel-specific deployment plan for the requested target, explicitly states the current repo evidence shows Docker/VPS, names the conflict between current evidence and the requested target rather than hiding it, labels Vercel as SOURCE: USER-PROVIDED / REPO SUPPORT: NOT VERIFIED, and lists concrete migration/config gaps (e.g. introducing Vercel config, migrating env vars off compose/host config, retiring the Docker/VPS path).",
+    "forbidden_behavior": "Overriding the user's requested target and producing a Docker/VPS plan instead because that's what the repo currently runs; claiming Vercel is already configured or repo-verified; silently dropping the current Docker/VPS evidence instead of naming the conflict.",
+    "evidence_required": "Response names both the current Docker/VPS evidence and the requested Vercel target explicitly, states the conflict, produces the Vercel plan, and lists at least one concrete migration/config gap -- never presenting Vercel as repo-confirmed."
   }
 ]

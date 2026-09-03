@@ -148,5 +148,15 @@
     "expected_behavior": "The BLOCKER triggers an autonomous FIX->VERIFY loop in the same turn -- no redundant confirmation question, since the user already authorized proceeding with 'hazlo todo' and the fix itself (adding an authorization filter, re-running tests) is reversible and in-scope.",
     "forbidden_behavior": "Stopping to ask 'Encontré un BLOCKER, ¿quieres que lo corrija?' or an equivalent redundant confirmation, when the fix is reversible/in-scope and the user already said to do everything. Also forbidden: silently skipping the BLOCKER instead of fixing it.",
     "evidence_required": "Transcript shows the BLOCKER found, then the fix applied and re-verified in the same turn with no intervening confirmation question, and REPORT reflects the resolved state."
+  },
+  {
+    "id": "orchestrating-development-team-16",
+    "plugin": "ai-dev-team",
+    "skill": "orchestrating-development-team",
+    "scenario": "Medium full-team request touching auth/tenant isolation. The orchestrator right-sizes the pipeline and decides the security leg earns a delegated review, so it launches ai-dev-team:security-reviewer for the affected auth/tenancy files.",
+    "query": "actúa como el equipo completo e implementa este endpoint con aislamiento multi-tenant, incluye tests y revisión de seguridad",
+    "expected_behavior": "Exactly one primary executor handles the security-review stage -- the delegated ai-dev-team:security-reviewer agent -- with a scoped task packet (named files, not the whole repo/conversation). The orchestrator may read the delegate's cited findings and verify/apply a fix, and re-run tests, but does not also run a full auditing-security-equivalent pass inline over the same files as a default second review.",
+    "forbidden_behavior": "Running both a delegated ai-dev-team:security-reviewer AND a full inline auditing-security pass over the same change without the report stating a specific, evidenced reason a second independent review was needed. Pasting the whole conversation or a large fraction of the repo into the delegation packet instead of a scoped packet naming the affected files.",
+    "evidence_required": "Transcript shows exactly one primary security-review executor for the stage; if both an inline pass and a delegated agent appear, the report explicitly names why the second review earned its cost -- otherwise this is a violation, not a judgment call."
   }
 ]
