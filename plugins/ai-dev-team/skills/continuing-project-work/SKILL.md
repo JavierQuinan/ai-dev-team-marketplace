@@ -53,7 +53,8 @@ Resolve from evidence (code, git, docs, tests, PR state) which single row applie
 | Architectural decision/ADR | `reviewing-architecture` (or `planning-implementation` if it's really a specific already-decided change, not an open decision) |
 | Specific implementation plan | `planning-implementation` |
 | PR diff review requested | `reviewing-code` |
-| Release sanitization/production readiness | `preparing-releases` (not `planning-deployment` — that skill doesn't exist yet in this plugin) |
+| Release sanitization/production readiness | `preparing-releases` |
+| Deployment/rollout/rollback planning | `planning-deployment` (never production execution — see its own planning-only contract) |
 
 ## PR-scoped continuation ("continúa el PR")
 
