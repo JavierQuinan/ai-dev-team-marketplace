@@ -1,7 +1,7 @@
 # AI Dev Team Marketplace
 
 [![Validate marketplace](https://github.com/JavierQuinan/ai-dev-team-marketplace/actions/workflows/validate.yml/badge.svg)](https://github.com/JavierQuinan/ai-dev-team-marketplace/actions/workflows/validate.yml)
-[![Version](https://img.shields.io/badge/version-v0.2.0-2563eb)](CHANGELOG.md)
+[![Latest release](https://img.shields.io/github/v/release/JavierQuinan/ai-dev-team-marketplace?display_name=tag&sort=semver)](https://github.com/JavierQuinan/ai-dev-team-marketplace/releases/latest)
 [![License](https://img.shields.io/badge/license-Apache--2.0-0f766e)](LICENSE)
 [![Help wanted](https://img.shields.io/github/issues-search/JavierQuinan/ai-dev-team-marketplace?query=is%3Aopen%20label%3A%22help%20wanted%22&label=help%20wanted)](https://github.com/JavierQuinan/ai-dev-team-marketplace/issues?q=is%3Aopen+label%3A%22help+wanted%22)
 
