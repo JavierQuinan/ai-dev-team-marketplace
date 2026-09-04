@@ -1,8 +1,8 @@
 # Roadmap
 
-`ai-dev-team-marketplace` v0.1.0 shipped one plugin, `ai-dev-team`, with ten user-facing skills, one internal safety-baseline skill, and ten agents (see [README.md](README.md)). v0.2.0 is approved and in progress — scope and rationale are recorded in [docs/V0.2.0_MASTER_PLAN.md](docs/V0.2.0_MASTER_PLAN.md), [ADR 0004](docs/adr/0004-v0.2.0-scope-and-consolidation.md) (scope & consolidation) and [ADR 0005](docs/adr/0005-database-migration-safety-model.md) (database migration safety model). Everything below that isn't marked as shipping in v0.2.0 is not implemented yet — inclusion is not a commitment to a specific release, and each family goes through the same design/eval bar as the v0.1.0 skills before shipping (see [CONTRIBUTING.md](CONTRIBUTING.md)).
+`ai-dev-team-marketplace` v0.1.0 shipped one plugin, `ai-dev-team`, with ten user-facing skills, one internal safety-baseline skill, and ten agents (see [README.md](README.md)). v0.2.0 has shipped — scope and rationale are recorded in [docs/V0.2.0_MASTER_PLAN.md](docs/V0.2.0_MASTER_PLAN.md), [ADR 0004](docs/adr/0004-v0.2.0-scope-and-consolidation.md) (scope & consolidation) and [ADR 0005](docs/adr/0005-database-migration-safety-model.md) (database migration safety model). Everything below that isn't marked as shipped is not implemented yet — inclusion is not a commitment to a specific release, and each family goes through the same design/eval bar as the v0.1.0 skills before shipping (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 
-## SHIPPING IN v0.2.0 (P0 — see ADR 0004)
+## SHIPPED IN v0.2.0 (P0 — see ADR 0004)
 
 - `managing-database-migrations` (new skill → `database-engineer`) — PostgreSQL/Supabase-aware migration authoring and review, RLS review, safety model per [ADR 0005](docs/adr/0005-database-migration-safety-model.md). Supersedes the former DATABASE roadmap line "PostgreSQL/Supabase migration authoring skill with online-migration patterns."
 - `writing-automated-tests` (new skill → `qa-engineer`) — unit/integration test authoring and gap analysis, distinct from `testing-with-playwright` (E2E only). Supersedes the former QA roadmap line "Unit/integration test authoring skill."
@@ -13,7 +13,7 @@
 - `orchestrating-development-team` extension — role-coverage matrix naming all requested hats against existing agents, explicit token-budget rule.
 - ADR 0004 (scope & consolidation) and ADR 0005 (database migration safety model).
 
-## P1 (v0.2.x, after P0 ships)
+## P1 (v0.2.x, next)
 
 - API-contract review extension to `reviewing-code`/`planning-implementation` — narrow slice (OpenAPI diffing, breaking-change detection) of the former FULL STACK roadmap line "API contract design/versioning skill"; a Decisions-section addition, not a new skill.
 - Advanced-E2E extension to `testing-with-playwright` — regression-suite patterns, API testing via Playwright's request context (partial QA family coverage).

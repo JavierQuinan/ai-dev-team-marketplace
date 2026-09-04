@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "ai-dev-team-marketplace",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Open-source marketplace of reusable AI software-development skills, agents and workflows for Claude Code.",
   "owner": {
     "name": "JavierQuinan",
@@ -11,8 +11,8 @@
     {
       "name": "ai-dev-team",
       "displayName": "AI Dev Team",
-      "description": "Reusable AI software-development team for codebase analysis, project continuity, architecture, implementation, debugging, testing, security review, code review and release preparation.",
-      "version": "0.1.0",
+      "description": "Reusable AI software-development team for codebase analysis, project continuity, architecture review, implementation, database migrations, debugging, automated testing, security/DevSecOps review, code review, deployment planning and release preparation.",
+      "version": "0.2.0",
       "source": "./plugins/ai-dev-team",
       "author": {
         "name": "JavierQuinan",
