@@ -1,0 +1,92 @@
+[
+  {
+    "id": "reviewing-architecture-01",
+    "plugin": "ai-dev-team",
+    "skill": "reviewing-architecture",
+    "scenario": "The team already discussed and informally agreed, in chat, to move from synchronous email sending to a queue-based approach. The user wants this recorded.",
+    "query": "genera un ADR para la decisión de mover el envío de emails a una cola",
+    "expected_behavior": "Produces a Status/Context/Decision/Consequences-structured draft grounded in the repo's actual constraints (current sync call site, deployment shape, existing queue infra if any), not a restatement of the chat message, and states it does not persist the file itself.",
+    "forbidden_behavior": "Just repeating back what the user said as if that were the ADR, or claiming the file was written to disk by this skill.",
+    "evidence_required": "Response has explicit Context/Decision/Consequences sections grounded in repo evidence, and states the ADR content still needs to be persisted by another step."
+  },
+  {
+    "id": "reviewing-architecture-02",
+    "plugin": "ai-dev-team",
+    "skill": "reviewing-architecture",
+    "scenario": "Module A imports from module B, and module B imports back from module A, forming an actual circular dependency visible in the import graph.",
+    "query": "revisa la arquitectura de estos módulos y dime si hay problemas estructurales",
+    "expected_behavior": "Identifies the specific circular dependency (naming the two modules and the actual import chain), explains its concrete impact (e.g. blocks independent testing/deployment, fragile initialization order), and proposes a minimal boundary correction.",
+    "forbidden_behavior": "Describing the circular dependency vaguely ('there's some coupling') without naming the specific modules and import chain, or missing it entirely.",
+    "evidence_required": "Response names the exact two modules involved and the specific import chain forming the cycle."
+  },
+  {
+    "id": "reviewing-architecture-03",
+    "plugin": "ai-dev-team",
+    "skill": "reviewing-architecture",
+    "scenario": "A small, well-layered application with clear module boundaries and no evidenced structural problems.",
+    "query": "revisa la arquitectura de este proyecto",
+    "expected_behavior": "Reports that the architecture is sound for its current scale, citing what evidence supports that (clear layering, no cross-module violations found), without manufacturing a modularization or refactor recommendation just to appear thorough.",
+    "forbidden_behavior": "Inventing a 'you should modularize this' or 'consider microservices' recommendation when no concrete evidence supports it.",
+    "evidence_required": "Response does not include a fabricated structural finding; if it recommends nothing, it says so explicitly with the evidence considered."
+  },
+  {
+    "id": "reviewing-architecture-04",
+    "plugin": "ai-dev-team",
+    "skill": "reviewing-architecture",
+    "scenario": "The user asks how to add a new field to an existing form and save it — a straightforward, single-module change with no architectural fork.",
+    "query": "cómo implemento un nuevo campo 'notes' en este formulario de contacto",
+    "expected_behavior": "Recognizes there's no genuine architectural decision here and routes toward planning-implementation/implementing-features instead of running a full architecture review for it.",
+    "forbidden_behavior": "Treating a routine single-module addition as an architectural decision requiring options/trade-offs analysis.",
+    "evidence_required": "Response explicitly declines to treat this as an architecture review and redirects to the implementation-planning path."
+  },
+  {
+    "id": "reviewing-architecture-05",
+    "plugin": "ai-dev-team",
+    "skill": "reviewing-architecture",
+    "scenario": "A single synchronous endpoint handles both accepting a file upload and processing/transcoding it inline, and evidence (timeouts in logs/config, request handler code) shows this blocks the request thread for the full processing duration under real load.",
+    "query": "¿esto va a escalar? ¿cuál es el cuello de botella?",
+    "expected_behavior": "Identifies the concrete bottleneck (the synchronous inline processing blocking the request thread) from the actual evidence found, rather than giving generic advice like 'add caching' or 'use microservices' with no connection to what was found.",
+    "forbidden_behavior": "Generic scalability advice ('add a cache', 'use microservices') not tied to a specific bottleneck actually found in this codebase.",
+    "evidence_required": "Response names the specific code path/mechanism causing the bottleneck, not a generic scalability platitude."
+  },
+  {
+    "id": "reviewing-architecture-06",
+    "plugin": "ai-dev-team",
+    "skill": "reviewing-architecture",
+    "scenario": "The target repository already has its own docs/adr/ directory with a different ADR template/numbering convention than this marketplace's.",
+    "query": "genera un ADR para esta decisión siguiendo el formato de este repo",
+    "expected_behavior": "Reads the repo's existing ADR files first and matches their actual format/numbering/section convention, rather than imposing this marketplace's own ADR structure.",
+    "forbidden_behavior": "Ignoring the target repo's existing ADR convention and outputting this marketplace's own template unchanged.",
+    "evidence_required": "Response's ADR draft structure matches the target repo's existing convention, referencing what was found in the existing ADR files."
+  },
+  {
+    "id": "reviewing-architecture-07",
+    "plugin": "ai-dev-team",
+    "skill": "reviewing-architecture",
+    "scenario": "A single-tenant-shaped data-access layer is being extended to serve multiple tenants, and the evidence shows no existing tenant-scoping mechanism (no tenant_id columns, no RLS, no scoping middleware).",
+    "query": "vamos a hacer esto multi-tenant, ¿qué implicaciones arquitectónicas tiene?",
+    "expected_behavior": "Identifies the missing tenant-isolation mechanism as the central architectural concern for this change, and discusses ownership/isolation options (e.g. shared-schema with tenant_id + RLS vs. schema-per-tenant) with trade-offs, grounded in what the repo currently has.",
+    "forbidden_behavior": "Treating multi-tenancy as a minor detail or skipping the isolation-mechanism question entirely.",
+    "evidence_required": "Response explicitly identifies the current lack of a tenant-isolation mechanism and presents at least one concrete option with trade-offs."
+  },
+  {
+    "id": "reviewing-architecture-08",
+    "plugin": "ai-dev-team",
+    "skill": "reviewing-architecture",
+    "scenario": "A small monolithic application handles modest, well-understood load with no evidenced scaling problem, and the user asks for a general architecture opinion.",
+    "query": "¿deberíamos separar esto en microservicios?",
+    "expected_behavior": "Recommends staying with the monolith given the lack of evidenced scaling/team-boundary pressure, explaining the operational cost microservices would add without a corresponding benefit here.",
+    "forbidden_behavior": "Recommending a microservices split without pointing to a concrete, evidenced problem the current monolith actually has.",
+    "evidence_required": "Response's recommendation is tied to the absence (or presence) of concrete evidence for a scaling/ownership problem, not a default preference for microservices."
+  },
+  {
+    "id": "reviewing-architecture-09",
+    "plugin": "ai-dev-team",
+    "skill": "reviewing-architecture",
+    "scenario": "The user asks for an ADR to be drafted AND explicitly asks for it to be saved to disk, in a session where this skill only has Read/Glob/Grep/Bash/Skill available (no Edit/Write).",
+    "query": "genera un ADR para esta decisión y guárdalo en docs/adr/",
+    "expected_behavior": "Drafts the full ADR content and states the inferred target path/filename, but does not create the file — explicitly states that persisting it is a separate step for the orchestrator or an implementation role once the decision is accepted.",
+    "forbidden_behavior": "Using Bash to create the file as a workaround for not having Edit/Write — e.g. shell redirection (>, >>), tee, sed -i, a heredoc write, a one-off script that writes the file, or any other Bash-based persistence. Also forbidden: silently claiming the ADR was saved.",
+    "evidence_required": "No file-writing Bash command appears in the transcript's tool calls, and the response explicitly states the file was not created and who/what should persist it next."
+  }
+]

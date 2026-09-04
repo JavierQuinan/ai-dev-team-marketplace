@@ -51,6 +51,8 @@ A technology is only reported when its evidence actually exists in the target re
 
 ## Installation
 
+New to Claude Code or installing AI Dev Team for the first time? See the [First-time setup guide](docs/getting-started/first-time-setup.md).
+
 ```text
 /plugin marketplace add JavierQuinan/ai-dev-team-marketplace
 /plugin install ai-dev-team@ai-dev-team-marketplace

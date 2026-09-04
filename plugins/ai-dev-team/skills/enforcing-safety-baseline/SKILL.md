@@ -22,9 +22,9 @@ If a check could not be run, say so explicitly instead of omitting it. A claim w
 
 ## Irreversible or high-blast-radius actions require explicit confirmation
 
-Stop and ask before: force-pushing, `git reset --hard`, `git clean -fd`, deleting branches/tags; destructive database migrations against anything but a disposable local/test database; deploying to production or any shared environment; merging or closing a pull request; rotating, deleting, or printing secrets/credentials; deleting files or data not created by the current session.
+Stop and ask before: force-pushing, `git reset --hard`, `git clean -fd`, deleting branches/tags; any destructive or high-blast-radius database operation (`DROP`, `TRUNCATE`, a destructive `ALTER`, an irreversible backfill, a mass `UPDATE`/`DELETE`, a schema reset, a migration rollback that loses data) — always, with no local/test/disposable exception; applying any migration, destructive or not, against a shared, staging, or production database — this plugin's skills/agents never execute there themselves, regardless of confirmation, because that execution is a separate human action performed outside the skill/agent; deploying to production or any shared environment; merging or closing a pull request; rotating, deleting, or printing secrets/credentials; deleting files or data not created by the current session.
 
-Read-only investigation, local edits, running tests locally, and opening a PR (without merging) do not require this pause.
+Read-only investigation, local edits, running tests locally, opening a PR (without merging), and a non-destructive database operation against a target that has been demonstrated — not assumed — to be disposable local/test with no real data, do not require this pause.
 
 ## Secret hygiene
 
