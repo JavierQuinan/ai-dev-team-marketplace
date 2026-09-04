@@ -14,7 +14,7 @@
 ## Validation
 
 - [ ] `python scripts/validate.py` passes locally
-- [ ] `claude plugin validate .` and `claude plugin validate ./plugins/<plugin>` pass locally (`npm install -g @anthropic-ai/claude-code`, no credentials required)
+- [ ] `claude plugin validate . --strict` and `claude plugin validate ./plugins/<plugin> --strict` pass locally (`npm install -g @anthropic-ai/claude-code`, no credentials required)
 - [ ] Tested locally with `claude --plugin-dir ./plugins/<plugin>`
 - [ ] New/changed skill has at least 3 evals in `tests/evals/`
 - [ ] New/changed agent still preloads `enforcing-safety-baseline` (or the equivalent for a new plugin) if it's meant to be directly invocable
