@@ -1,0 +1,10 @@
+# Default ownership for repository changes.
+* @JavierQuinan
+
+# Security- and release-sensitive areas remain explicitly owned.
+/.github/ @JavierQuinan
+/plugins/ @JavierQuinan
+/scripts/ @JavierQuinan
+/SECURITY.md @JavierQuinan
+/LICENSE @JavierQuinan
+/NOTICE @JavierQuinan
