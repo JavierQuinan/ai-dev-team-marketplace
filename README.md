@@ -1,6 +1,20 @@
 # AI Dev Team Marketplace
 
+[![Validate marketplace](https://github.com/JavierQuinan/ai-dev-team-marketplace/actions/workflows/validate.yml/badge.svg)](https://github.com/JavierQuinan/ai-dev-team-marketplace/actions/workflows/validate.yml)
+[![Version](https://img.shields.io/badge/version-v0.2.0-2563eb)](CHANGELOG.md)
+[![License](https://img.shields.io/badge/license-Apache--2.0-0f766e)](LICENSE)
+[![Help wanted](https://img.shields.io/github/issues-search/JavierQuinan/ai-dev-team-marketplace?query=is%3Aopen%20label%3A%22help%20wanted%22&label=help%20wanted)](https://github.com/JavierQuinan/ai-dev-team-marketplace/issues?q=is%3Aopen+label%3A%22help+wanted%22)
+
 Open-source marketplace of reusable AI software-development skills, agents, and workflows for [Claude Code](https://code.claude.com/docs). It packages a full, stack-agnostic "AI software development team" — architecture, implementation, debugging, testing, security review, code review, and release preparation — as a versioned Claude Code plugin any repository can install.
+
+## Try it in 60 seconds
+
+```text
+/plugin marketplace add JavierQuinan/ai-dev-team-marketplace
+/plugin install ai-dev-team@ai-dev-team-marketplace
+```
+
+Then ask Claude Code to continue an existing project, review a PR, audit security, write tests, plan a migration, debug a regression, or prepare a release. The plugin routes the task to a scoped skill or specialized agent instead of relying on a single oversized prompt.
 
 ## Why this exists
 
@@ -143,6 +157,8 @@ CI (`.github/workflows/validate.yml`) runs both on every pull request and push t
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) — in short: prefer extending an existing skill's `references/` over adding a new skill, keep `SKILL.md` files small and evidence-driven, and include evals with any new/changed skill.
+
+A real runtime-hardening task is currently open under [`help wanted`](https://github.com/JavierQuinan/ai-dev-team-marketplace/issues/7). External bug reports, focused PRs, runtime evidence and documentation improvements are welcome; contributions should remain independently useful rather than being created only to generate repository activity.
 
 ## Security
 
