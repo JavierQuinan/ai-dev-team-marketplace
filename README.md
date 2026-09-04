@@ -19,13 +19,13 @@ ai-dev-team-marketplace/
 └── .github/                          # CI, issue/PR templates
 ```
 
-The marketplace is designed to hold more than one plugin over time (see [ROADMAP.md](ROADMAP.md)); v0.1.0 ships exactly one: `ai-dev-team`. See [docs/adr/0001-marketplace-architecture.md](docs/adr/0001-marketplace-architecture.md) for the reasoning behind this structure, and [docs/architecture/token-efficiency.md](docs/architecture/token-efficiency.md) for how skills stay cheap to have installed.
+The marketplace is designed to hold more than one plugin over time (see [ROADMAP.md](ROADMAP.md)); v0.2.0 ships exactly one: `ai-dev-team`. See [docs/adr/0001-marketplace-architecture.md](docs/adr/0001-marketplace-architecture.md) for the reasoning behind this structure, and [docs/architecture/token-efficiency.md](docs/architecture/token-efficiency.md) for how skills stay cheap to have installed.
 
-## What's in `ai-dev-team` v0.1.0
+## What's in `ai-dev-team` v0.2.0
 
-**10 user-facing skills**, each a clearly-scoped responsibility rather than a framework-specific clone:
+**14 user-facing skills**, each a clearly-scoped responsibility rather than a framework-specific clone:
 
-`continuing-project-work` · `orchestrating-development-team` · `analyzing-codebase` · `planning-implementation` · `implementing-features` · `debugging-systematically` · `testing-with-playwright` · `reviewing-code` · `auditing-security` · `preparing-releases`
+`continuing-project-work` · `orchestrating-development-team` · `analyzing-codebase` · `planning-implementation` · `implementing-features` · `debugging-systematically` · `testing-with-playwright` · `writing-automated-tests` · `reviewing-code` · `reviewing-architecture` · `auditing-security` · `managing-database-migrations` · `planning-deployment` · `preparing-releases`
 
 Plus one internal, non-user-invocable skill, `enforcing-safety-baseline`, that carries the shared evidence/safety policy and is preloaded into every agent below (see [Agent safety model](#agent-safety-model)).
 
@@ -100,6 +100,15 @@ Audita el aislamiento multi-tenant de este sistema.
 
 Deja esto listo para producción.
 → triggers preparing-releases (GO / CONDITIONAL GO / NO-GO)
+
+Escribe tests unitarios para este módulo de facturación.
+→ triggers writing-automated-tests
+
+Necesito una migración segura para agregar esta columna en Postgres.
+→ triggers managing-database-migrations
+
+Planifica el despliegue de esta feature a producción.
+→ triggers planning-deployment (plan only — never executes a deploy)
 ```
 
 Or invoke any skill directly, e.g. `/ai-dev-team:reviewing-code`.
@@ -141,7 +150,7 @@ See [SECURITY.md](SECURITY.md) for responsible disclosure. Every skill in this p
 
 ## Roadmap
 
-See [ROADMAP.md](ROADMAP.md) for skill/agent families under consideration beyond v0.1.0 (QA depth, DevSecOps, database specialization, GitHub automation, delivery/incident support, and opt-in vertical reference packs).
+See [ROADMAP.md](ROADMAP.md) for skill/agent families under consideration beyond v0.2.0 (API-contract review, advanced E2E, GitHub automation, delivery/incident support, and opt-in vertical reference packs).
 
 ## Language
 
