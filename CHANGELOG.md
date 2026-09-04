@@ -2,6 +2,23 @@
 
 All notable changes to this repository are documented in this file. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- `NOTICE` with project attribution for Apache-2.0 distributions.
+- `.github/CODEOWNERS` with explicit ownership for repository-wide and security/release-sensitive paths.
+- `.github/dependabot.yml` for weekly GitHub Actions dependency updates.
+- Structured GitHub Discussions Q&A form for reproducible support requests and safer evidence sharing.
+
+### Changed
+
+- Restored the canonical Apache License 2.0 text and moved project attribution to `NOTICE`.
+- Clarified inbound contribution licensing, third-party material expectations, and the current no-CLA/no-DCO contribution model.
+- Updated `SECURITY.md` support to the current 0.2.x line and tightened coordinated-disclosure guidance.
+- Improved README/contribution discoverability and community entry points.
+- Protected the default branch with repository rules requiring pull requests, the `validate` status check, up-to-date branches, conversation resolution, linear history, squash-only merges, and blocking branch deletion/force-pushes.
+
 ## [0.2.0] - 2026-09-04
 
 Scope and rationale: [docs/V0.2.0_MASTER_PLAN.md](docs/V0.2.0_MASTER_PLAN.md), [ADR 0004](docs/adr/0004-v0.2.0-scope-and-consolidation.md), [ADR 0005](docs/adr/0005-database-migration-safety-model.md).
@@ -22,7 +39,7 @@ Scope and rationale: [docs/V0.2.0_MASTER_PLAN.md](docs/V0.2.0_MASTER_PLAN.md), [
 - `marketplace.json` and `plugin.json` version bumped to 0.2.0; plugin description now reflects the four new skill families.
 - PRs #3–#6 (database, engineering-quality, security-continuity, orchestration-deployment) were originally merged into a `release/v0.2.0` branch that had not been promoted to `main`; this release closes that gap.
 
-## [0.1.0] - 2026-08-29 (pre-merge, hardening pass on PR #1)
+## [0.1.0] - 2026-09-01
 
 ### Added
 
@@ -37,7 +54,7 @@ Scope and rationale: [docs/V0.2.0_MASTER_PLAN.md](docs/V0.2.0_MASTER_PLAN.md), [
 - Architecture documentation: `docs/adr/0001-marketplace-architecture.md`, `docs/adr/0002-agent-safety-baseline.md`, `docs/architecture/token-efficiency.md` (corrected subagent-context model), `ROADMAP.md`.
 - Open-source project hygiene: `LICENSE` (Apache-2.0), `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, issue/PR templates.
 
-### Fixed (pre-merge review findings, PR #1)
+### Fixed
 
 - Agents no longer silently depend on a parent skill's safety discipline — see ADR 0002.
 - `analyzing-codebase`, `debugging-systematically`, `reviewing-code` now link the safety baseline, matching the other seven workflow skills.
