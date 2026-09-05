@@ -28,6 +28,29 @@ A practical budget, not a hard technical ceiling — used to catch the common fa
 
 A band is about the actual evidenced shape of the work, not the user's framing — "actúa como el equipo completo" on a one-line copy change is still Tiny once DISCOVER confirms it, and the orchestrator says so explicitly (right-sized, not silently doing less than "full team" implied).
 
+### Worked right-sizing examples
+
+These don't change the bands or counts above — they exist so a borderline case has something concrete to check against, grounded in real fresh-process evidence (issue #7).
+
+**Small (0–1 agents).**
+- Not delegating is a valid decision on its own, not a fallback — a request touching one or two related endpoints in a single file/module, with no explicit independence ask, is correctly done inline end to end (implementation, tests, and any required review). Real trials: a 1-endpoint auth fixture and a 2-endpoint auth fixture each right-sized to 0 agents and still produced a correct, complete result, including the mandatory security review done inline.
+- A single delegation can still be correct here if there's a specific, stated reason for independence or risk (e.g. the change touches payment/financial data even though it's small) — but the reason has to be stated, not implied by role availability.
+- What this band does *not* justify: delegating because `security-reviewer`/`qa-engineer`/etc. exist. Availability of a role is never itself the reason.
+
+**Medium (1–3 agents).**
+- One or more specialists is correct *when independence adds real value* — the clearest real signal is an explicit ask for independent review, or a genuine risk surface (auth, tenancy, payments) that benefits from an uncontaminated second read. Real trials: two separate 3-endpoint fixtures, each explicitly framed as needing an independent security review, each delegated to exactly one `ai-dev-team:security-reviewer` — 2/2 trials, consistent.
+- The count follows the demonstrated scope and risk, not the user's phrasing — "usa todo el equipo" on a Medium-shaped task does not by itself justify launching more agents than the actual disciplines involved.
+- One executor per stage still applies at this size — don't launch a specialist for a stage and also do that same stage's work inline as a second pass (see One executor per stage above).
+
+**Large / cross-cutting (3–6 agents).**
+- Higher delegation is justified only by real, evidenced multidisciplinary scope — e.g. schema changes plus backend plus frontend plus a security-sensitive surface, each independently confirmed during DISCOVER, not assumed from the request's framing.
+- Each disciplines-worth of delegation should be independently justifiable on its own terms (per Inline-first above) — a Large-shaped request doesn't turn "full team" into an automatic fan-out across all ten agents; it still means "these specific disciplines each independently earn a delegation."
+- One primary executor per stage remains non-negotiable at every size, including Large — more agents means more disciplines covered, never more than one executor assigned to the same stage.
+
+Tiny and Exceptional are unchanged from the table above and aren't restated here — Tiny's "0 agents" and Exceptional's "justify in the plan/report" already say what's needed without further examples.
+
+**On issue #7's evidence, precisely stated:** of six fresh-process trials, two (a 2-endpoint fixture, attempted twice) stalled on a `node --test` permission prompt before ever reaching a review stage — they never produced a real sizing decision and aren't evidence about right-sizing either way. Of the four trials that actually reached a decision: a 1-endpoint fixture and a 2-endpoint fixture each right-sized to 0 agents (Small, valid); two 3-endpoint fixtures explicitly asking for independent review each delegated to exactly one specialist (Medium, valid, 2/2). This is a monotonic, evidence-consistent relationship between shape/explicitness and delegation — it confirms the existing bands rather than revealing a defect, and none of it justifies changing the bands, the pipeline, or the Decisions section.
+
 ## No token-count claims
 
 Never state an exact token count ("this used 12,483 tokens") unless the runtime actually exposes that number in this session — that's a fabricated-precision claim, exactly what `enforcing-safety-baseline`'s evidence rule forbids. The budget model here is about *agent count and context duplication*, which is directly observable from what was actually launched, not about token arithmetic that isn't.
