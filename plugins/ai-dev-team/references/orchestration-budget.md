@@ -58,7 +58,18 @@ Concretely: if `auditing-security` runs inline, don't also delegate to `ai-dev-t
 
 ## Task packets
 
-Every delegated agent gets a short, concrete packet instead of the full conversation or the full repository pasted in:
+Every delegated agent gets a short, concrete packet instead of the full conversation or the full repository pasted in. A packet is judged correct by what it materially does, not by matching specific wording — it must:
+
+- state the goal (what this agent must produce);
+- bound the scope (what's in, what's explicitly out);
+- identify the relevant files/area (named files/directories, not "the codebase");
+- give sufficient context (the specific facts this agent actually needs, not everything found);
+- state the expected output/artifact (what "done" looks like for this delegation);
+- include limits/stop conditions where they apply (when to stop and report back rather than proceed, and any constraints on what not to touch).
+
+Regardless of format, a packet is never valid if it: pastes the full conversation history; dumps an indiscriminate fraction of the repository; leaves the scope ambiguous; omits what output is expected; expands scope beyond what was authorized; or creates write overlap with another active writer (see One writer per area below — that guarantee holds independent of how the packet is worded).
+
+The following heading structure is a **recommended template, best-effort, not a literal requirement** — link or name exact files for the agent to read itself rather than pasting their contents either way:
 
 ```
 GOAL: <one sentence — what this agent must produce>
@@ -70,9 +81,7 @@ EXPECTED ARTIFACT: <what "done" looks like for this delegation>
 STOP CONDITIONS: <when to stop and report back rather than proceed>
 ```
 
-Link or name exact files for the agent to read itself rather than pasting their contents. Never paste the entire conversation history or a large fraction of the repository into a delegation packet — that defeats the isolated-context model and is exactly the token cost this budget exists to control.
-
-Use these exact headings verbatim in the delegation prompt rather than covering the same ground in unlabeled prose — they're cheap, deterministic, and let a packet be audited straight from the transcript (a real, scoped packet looks different at a glance from a full-context dump). Keep each field short; a one-line `OWNED AREA: none (read-only review)` is enough when there's nothing to write.
+Using these exact headings verbatim is preferred when convenient — they make a packet cheaper to audit straight from the transcript — but a well-scoped packet in unlabeled prose that covers the same material ground satisfies this contract equally. *Runtime trials available through issue #7 showed well-scoped task packets in substance (named files, concrete asks, stated expected output — never a conversation or repo dump) while the literal template headings above were not emitted consistently across those trials.* That's a snapshot of the runtime evidence gathered so far, not a permanent property of the model — a future session may well use the literal headings, and nothing here discourages it. The requirement this section actually enforces is the material one above; the heading template is a convenience on top of it, not a substitute for it.
 
 ## One writer per area, ownership ledger
 
