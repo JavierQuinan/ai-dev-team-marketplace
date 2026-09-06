@@ -10,7 +10,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); version
 
 ### Changed
 
-- Specialist-stage delegation hardened: a stage's sole specialist is now delegated synchronously (`run_in_background: false`), verified in real fresh-process trials to prevent the duplicate specialist-stage execution seen in earlier testing.
+- Runtime-verified that delegating a stage's specialist synchronously (`run_in_background: false`) prevents the duplicate specialist-stage execution observed in earlier testing of `orchestrating-development-team`, for the cases tested — not a claim of guaranteed deterministic model behavior.
 - Task-packet correctness is judged by material content (goal, scope, relevant files, expected output) rather than requiring literal template headings.
 - Delegation right-sizing worked examples (Small/Medium/Large) and boundary evals added to the orchestration budget reference.
 
