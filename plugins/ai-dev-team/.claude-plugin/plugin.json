@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "ai-dev-team",
   "displayName": "AI Dev Team",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Reusable AI software-development team for codebase analysis, project continuity, architecture review, implementation, database migrations, debugging, automated testing, security/DevSecOps review, code review, deployment planning and release preparation.",
   "author": {
     "name": "JavierQuinan",

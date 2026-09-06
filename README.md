@@ -33,9 +33,9 @@ ai-dev-team-marketplace/
 └── .github/                          # CI, issue/PR templates
 ```
 
-The marketplace is designed to hold more than one plugin over time (see [ROADMAP.md](ROADMAP.md)); v0.2.0 ships exactly one: `ai-dev-team`. See [docs/adr/0001-marketplace-architecture.md](docs/adr/0001-marketplace-architecture.md) for the reasoning behind this structure, and [docs/architecture/token-efficiency.md](docs/architecture/token-efficiency.md) for how skills stay cheap to have installed.
+The marketplace is designed to hold more than one plugin over time (see [ROADMAP.md](ROADMAP.md)); it currently contains one: `ai-dev-team`. See [docs/adr/0001-marketplace-architecture.md](docs/adr/0001-marketplace-architecture.md) for the reasoning behind this structure, and [docs/architecture/token-efficiency.md](docs/architecture/token-efficiency.md) for how skills stay cheap to have installed.
 
-## What's in `ai-dev-team` v0.2.0
+## What's in `ai-dev-team` v0.2.1
 
 **14 user-facing skills**, each a clearly-scoped responsibility rather than a framework-specific clone:
 
@@ -109,6 +109,12 @@ Prueba el flujo de checkout completo con Playwright.
 Haz code review de este PR.
 → triggers reviewing-code
 
+Revisa si este cambio de contrato API rompe clientes existentes.
+→ triggers reviewing-code (directional API-contract compatibility review)
+
+Planifica cómo migrar este contrato de API sin romper a los consumidores existentes.
+→ triggers planning-implementation (breaking-change rollout/versioning strategy)
+
 Audita el aislamiento multi-tenant de este sistema.
 → triggers auditing-security
 
@@ -158,7 +164,7 @@ CI (`.github/workflows/validate.yml`) runs both on every pull request and push t
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) — in short: prefer extending an existing skill's `references/` over adding a new skill, keep `SKILL.md` files small and evidence-driven, and include evals with any new/changed skill.
 
-A real runtime-hardening task is currently open under [`help wanted`](https://github.com/JavierQuinan/ai-dev-team-marketplace/issues/7). External bug reports, focused PRs, runtime evidence and documentation improvements are welcome; contributions should remain independently useful rather than being created only to generate repository activity.
+Browse open [`help wanted`](https://github.com/JavierQuinan/ai-dev-team-marketplace/issues?q=is%3Aopen+label%3A%22help+wanted%22) issues for focused contribution opportunities. External bug reports, focused PRs, runtime evidence and documentation improvements are welcome; contributions should remain independently useful rather than being created only to generate repository activity.
 
 ## Security
 
@@ -166,7 +172,7 @@ See [SECURITY.md](SECURITY.md) for responsible disclosure. Every skill in this p
 
 ## Roadmap
 
-See [ROADMAP.md](ROADMAP.md) for skill/agent families under consideration beyond v0.2.0 (API-contract review, advanced E2E, GitHub automation, delivery/incident support, and opt-in vertical reference packs).
+See [ROADMAP.md](ROADMAP.md) for remaining planned work in the 0.2.x line (advanced E2E, CI-failure diagnosis, backend/frontend reference packs, delivery/incident support, and opt-in vertical reference packs).
 
 ## Language
 
