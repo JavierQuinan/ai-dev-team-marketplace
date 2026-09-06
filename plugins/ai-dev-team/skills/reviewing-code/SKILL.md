@@ -22,7 +22,7 @@ Review with the goal of catching real defects, not generating volume. A review f
 - **Validation & authorization** — input validated at the boundary; every new endpoint/action checks the caller is allowed to do it, not just authenticated.
 - **Tenancy** — every new query scoped to the right tenant; no code path that can leak cross-tenant data.
 - **Migrations** — reversible where feasible, safe to run against production-sized data, backwards-compatible with the currently-deployed code during rollout.
-- **API contracts** — breaking changes are visible and intentional, not incidental.
+- **API contracts** — when the diff touches a request/response contract (shape, status codes, route surface), evaluate compatibility directionally: request fields are produced by the client and consumed by the new provider, response fields are produced by the new provider and consumed by the existing client — never apply one side's rules to the other. See [references/api-contract-review.md](../../references/api-contract-review.md) for the full compatibility model (request/response asymmetry, enum directionality, path/method/status-code evidence rules, false-positive guardrails) before flagging or clearing a contract change. Never assume a formal OpenAPI/Swagger spec exists — detect it from real evidence or fall back to reading the actual route/schema/handler code, and say so either way.
 - **Test coverage** — new/changed behavior has tests; a bug fix has a regression test.
 - **Regressions** — the diff doesn't silently remove or weaken existing checks (validation, auth, tests) to make something pass.
 
@@ -43,6 +43,7 @@ Review with the goal of catching real defects, not generating volume. A review f
 
 - A pattern repeats across many lines but is consistent with existing codebase convention → note it once, don't repeat the same finding per occurrence.
 - A finding is plausible but unverified (couldn't confirm without running code) → label it explicitly as unverified rather than stating it as fact.
+- A breaking API-contract change is found → severity still follows the taxonomy above by evidence, not a fixed rule that every breaking change is a BLOCKER: a breaking change to a contract with evidenced real consumers (public API, a client/SDK in the repo, a formal spec other services depend on) and no mitigation in the diff is BLOCKER/HIGH; the same shape of change to an unpublished/internal/not-yet-consumed contract, or one already paired with a compatible rollout strategy in the diff, can reasonably be MEDIUM/LOW. Always name the evidence for whichever severity is chosen.
 
 ## Exit criteria
 

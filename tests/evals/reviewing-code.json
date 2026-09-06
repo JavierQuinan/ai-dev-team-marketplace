@@ -28,5 +28,55 @@
     "expected_behavior": "Notes the pattern once as a single NIT/LOW finding rather than 40 separate line-by-line comments.",
     "forbidden_behavior": "Producing 40 near-duplicate findings for the same repeated style issue.",
     "evidence_required": "Findings list contains one consolidated entry for the repeated pattern, not one per occurrence."
+  },
+  {
+    "id": "reviewing-code-04",
+    "plugin": "ai-dev-team",
+    "skill": "reviewing-code",
+    "scenario": "A diff changes a POST /orders request schema: the `shippingAddress` field moves from optional to required. The old contract (evidenced by an existing OpenAPI spec or the prior handler validation) shows it was optional; a real client integration in the repo (or referenced test fixture) sends requests without it.",
+    "query": "revisa este PR",
+    "expected_behavior": "Identifies this as a REQUEST-side change: the existing client produces the request, the new provider now consumes/validates it more strictly. Flags it as breaking with the concrete failure scenario (an existing client that legitimately omits shippingAddress under the old contract now gets a validation failure it never used to). Severity reflects evidence of real consumers/an active contract, not an automatic BLOCKER label applied without checking that evidence.",
+    "forbidden_behavior": "Treating this the same as a response-side required-to-optional change (the two are not symmetric). Flagging it without stating the concrete failure scenario. Applying a fixed 'breaking = BLOCKER' rule without referencing whether evidence shows this is a real, consumed contract.",
+    "evidence_required": "Finding explicitly names OLD vs NEW contract, states this is a request-direction change (client produces, provider consumes), and gives the concrete scenario of an existing client omitting the now-required field."
+  },
+  {
+    "id": "reviewing-code-05",
+    "plugin": "ai-dev-team",
+    "skill": "reviewing-code",
+    "scenario": "A diff changes a GET /invoices/:id response schema: the `dueDate` field moves from required (always present in the old contract) to optional (the new provider may omit it, e.g. for a new invoice type). Existing consumer code/tests in the repo access `response.dueDate` directly assuming it's always present.",
+    "query": "revisa este PR",
+    "expected_behavior": "Identifies this as a RESPONSE-side change: the new provider now produces less than before, the existing consumer still expects the old guarantee. Flags it as breaking -- this is the opposite verdict from the equivalent-sounding request-side case, and the finding must make that direction explicit rather than reusing request-side reasoning. States the concrete failure scenario (existing consumer code that reads dueDate without a null check breaks or misbehaves on the now-missing field).",
+    "forbidden_behavior": "Treating required-to-optional on a response the same as required-to-optional on a request (they are not equivalent -- request required-to-optional is generally additive/safe, response required-to-optional is generally breaking). Clearing this as safe by analogy to the request-side rule.",
+    "evidence_required": "Finding explicitly names this as a response-direction change (provider produces, consumer consumes) and distinguishes the verdict from what the same-looking transition would mean on a request, citing the actual consumer code that assumes presence."
+  },
+  {
+    "id": "reviewing-code-06",
+    "plugin": "ai-dev-team",
+    "skill": "reviewing-code",
+    "scenario": "A diff expands a response enum (e.g. an `orderStatus` field gains a new possible value, 'partially_refunded') on an endpoint whose real consumer in the repo has an exhaustive switch/match over the previously-known values with no default/fallback case -- i.e. a closed, non-tolerant reader, not a tolerant one.",
+    "query": "revisa este PR",
+    "expected_behavior": "Does NOT apply a blanket 'enum expansion is safe' rule. Because there is concrete evidence of a closed/exhaustive consumer (no default case, no unrecognized-value handling), this response enum expansion is flagged as a real compatibility risk -- the consumer can hit an unhandled case when the provider starts returning the new value. States this is a RESPONSE-side, provider-produces/consumer-consumes case, and that the verdict depends on the consumer's actual tolerant-reader behavior (or lack of it), not on the fact that it's an expansion.",
+    "forbidden_behavior": "Stating or implying 'enum expansion is generally safe' as a general rule and clearing the finding on that basis alone. Failing to check/cite the consumer's actual switch/match behavior before reaching a verdict. Treating this the same as a request-enum expansion (which usually is safe, since the client controls what it sends).",
+    "evidence_required": "Finding names the specific consumer code showing exhaustive/closed handling with no fallback, identifies this as a response-side enum change, and explicitly states the verdict depends on that tolerant-reader evidence rather than defaulting to 'expansion is safe.'"
+  },
+  {
+    "id": "reviewing-code-07",
+    "plugin": "ai-dev-team",
+    "skill": "reviewing-code",
+    "scenario": "A diff removes a route, DELETE /api/v1/legacy-export, that is referenced by a client SDK checked into the same repo and covered by an existing integration test.",
+    "query": "revisa este PR",
+    "expected_behavior": "Flags the removal as breaking, citing the concrete evidence that the route is an actually-consumed contract (the SDK reference and the test), not a speculative 'removing endpoints can be risky' generality. States the concrete failure scenario: any caller still using the SDK method or hitting the route directly gets a 404/routing failure instead of the expected response.",
+    "forbidden_behavior": "Flagging every route removal as breaking regardless of evidence it was ever consumed. Omitting the finding because the removal 'looks like normal API evolution.' Failing to cite the SDK/test evidence that makes this a real, not speculative, finding.",
+    "evidence_required": "Finding cites the specific SDK reference and/or test that evidences this route was an actual consumed contract, and states the concrete failure mode for an existing caller."
+  },
+  {
+    "id": "reviewing-code-08",
+    "plugin": "ai-dev-team",
+    "skill": "reviewing-code",
+    "scenario": "A diff adds a new optional request field (`referralCode`, optional string) to an existing POST /signup endpoint, and a new optional field to its response (`promotionsApplied`, optional array) with no evidence of strict/closed deserialization on the consumer side. This is a genuinely additive, non-breaking change.",
+    "query": "revisa este PR",
+    "expected_behavior": "Does not report a breaking-change finding for either addition -- a new optional request field is compatible (old clients simply don't send it, the provider doesn't require it) and a new optional response field is compatible absent evidence of strict/closed decoding on the consumer. If API-contract findings are mentioned at all, they explicitly state why these additions are compatible rather than staying silent in a way that could be mistaken for an oversight.",
+    "forbidden_behavior": "Flagging either addition as a breaking change or an API-contract risk. Treating 'this touches the API contract' as inherently worth a finding regardless of whether anything is actually incompatible -- this is exactly the false-positive failure mode this capability must avoid.",
+    "evidence_required": "No breaking-change finding appears for either field addition; if the API-contract check is mentioned, it explicitly states the additions are compatible and why, rather than manufacturing a finding to appear thorough."
   }
 ]

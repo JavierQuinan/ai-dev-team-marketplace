@@ -28,5 +28,35 @@
     "expected_behavior": "Plan explicitly flags the migration as destructive/breaking, proposes a backwards-compatible rollout sequence (add new column, dual-write, migrate, drop later) or explicitly calls out the risk and asks for confirmation before proceeding.",
     "forbidden_behavior": "Planning a single-step destructive rename without surfacing the backwards-compatibility risk.",
     "evidence_required": "Plan's Database impact and Backwards compatibility sections explicitly address the breaking nature of the change."
+  },
+  {
+    "id": "planning-implementation-04",
+    "plugin": "ai-dev-team",
+    "skill": "planning-implementation",
+    "scenario": "User requests a change that makes a previously-optional request field (`taxId`) required on an existing, actively-consumed POST /invoices endpoint -- a genuine breaking change on the request side.",
+    "query": "implementa el cambio para que taxId sea obligatorio en la creación de facturas",
+    "expected_behavior": "Plan's API impact section identifies the OLD contract (taxId optional) and NEW contract (taxId required), names this as a request-direction breaking change (existing clients that omit the field will fail), and proposes a concrete rollout strategy -- e.g. additive rollout with validation warning first, a dual-field/tolerant transition period, or a coordinated rollout only if the plan evidences one deploy pipeline for provider and consumers. Does not silently plan a single-step breaking change with no mitigation.",
+    "forbidden_behavior": "Planning the required-field change as a single, immediate step with no rollout/versioning strategy. Treating this like a response-side change or using response-side reasoning. Proposing a strategy (e.g. 'coordinated rollout') without evidence the environment actually supports it.",
+    "evidence_required": "Plan's API impact section names OLD/NEW contract, states the request direction explicitly, and includes a concrete, named rollout/versioning strategy for the breaking transition -- not just a flag that it's breaking with no proposed path forward."
+  },
+  {
+    "id": "planning-implementation-05",
+    "plugin": "ai-dev-team",
+    "skill": "planning-implementation",
+    "scenario": "User requests adding a new, optional response field (`estimatedDeliveryDate`) to an existing GET /orders/:id endpoint -- a genuinely additive, compatible change with no evidence of strict/closed consumer decoding.",
+    "query": "agrega un campo estimatedDeliveryDate (opcional) a la respuesta de GET /orders/:id",
+    "expected_behavior": "Plan's API impact section identifies this as additive/compatible (new optional response field, no evidence of strict decoding on the consumer side) and does not impose a version bump, deprecation notice, or dual-field transition -- those are reserved for genuinely breaking changes. The plan may still note it as an API change for documentation purposes, but does not treat it as needing a compatibility strategy.",
+    "forbidden_behavior": "Imposing a version bump, parallel-version strategy, or deprecation plan on a change that is actually compatible/additive. Treating every API impact section as requiring a rollout strategy regardless of whether the change is actually breaking.",
+    "evidence_required": "Plan's API impact section explicitly states the change is additive/compatible and does not include an unnecessary version-bump or deprecation strategy for it."
+  },
+  {
+    "id": "planning-implementation-06",
+    "plugin": "ai-dev-team",
+    "skill": "planning-implementation",
+    "scenario": "User requests narrowing an accepted enum value set on an existing request field (`shipmentMethod` on POST /shipments loses the 'drone' option, which real client integrations in the repo still send) -- a request-side breaking enum narrowing.",
+    "query": "elimina la opción 'drone' de los métodos de envío aceptados en POST /shipments",
+    "expected_behavior": "Plan's API impact section identifies this as a request-direction enum narrowing, names it breaking for any client still sending the removed value (cites the real client integration found in the repo), and proposes a concrete strategy (e.g. deprecate-then-remove with a warning period, or reject with a clear migration message after a stated window) rather than a same-day removal with no transition.",
+    "forbidden_behavior": "Treating enum narrowing as automatically safe because it 'just removes an option.' Failing to check for real client usage of the value being removed before deciding on a strategy. Proposing an immediate hard removal with no transition when active client usage is evidenced.",
+    "evidence_required": "Plan's API impact section names the request-direction enum narrowing explicitly, cites the evidenced real client usage of the removed value, and proposes a concrete transition strategy rather than an unmitigated same-day removal."
   }
 ]
