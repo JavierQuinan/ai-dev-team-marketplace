@@ -1,6 +1,6 @@
 # Roadmap
 
-`ai-dev-team-marketplace` v0.1.0 shipped one plugin, `ai-dev-team`, with ten user-facing skills, one internal safety-baseline skill, and ten agents (see [README.md](README.md)). v0.2.0 has shipped — scope and rationale are recorded in [docs/V0.2.0_MASTER_PLAN.md](docs/V0.2.0_MASTER_PLAN.md), [ADR 0004](docs/adr/0004-v0.2.0-scope-and-consolidation.md) (scope & consolidation) and [ADR 0005](docs/adr/0005-database-migration-safety-model.md) (database migration safety model). Sections below explicitly distinguish work that has shipped, work that is implemented for an upcoming release, and work that remains planned — inclusion in any of these is not a commitment to a specific release, and each family goes through the same design/eval bar as the v0.1.0 skills before shipping (see [CONTRIBUTING.md](CONTRIBUTING.md)).
+`ai-dev-team-marketplace` v0.1.0 shipped one plugin, `ai-dev-team`, with ten user-facing skills, one internal safety-baseline skill, and ten agents (see [README.md](README.md)). v0.2.0 has shipped — scope and rationale are recorded in [docs/V0.2.0_MASTER_PLAN.md](docs/V0.2.0_MASTER_PLAN.md), [ADR 0004](docs/adr/0004-v0.2.0-scope-and-consolidation.md) (scope & consolidation) and [ADR 0005](docs/adr/0005-database-migration-safety-model.md) (database migration safety model). Sections below explicitly distinguish work that has shipped, work that is implemented for a defined release scope, and work that remains planned — inclusion in any of these is not a commitment to a specific release, and each family goes through the same design/eval bar as the v0.1.0 skills before shipping (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 
 ## SHIPPED IN v0.2.0 (P0 — see ADR 0004)
 
@@ -13,7 +13,7 @@
 - `orchestrating-development-team` extension — role-coverage matrix naming all requested hats against existing agents, explicit token-budget rule.
 - ADR 0004 (scope & consolidation) and ADR 0005 (database migration safety model).
 
-## V0.2.1 SCOPE — IMPLEMENTED
+## v0.2.1 SCOPE — IMPLEMENTED
 
 Implemented and runtime-verified in [PR #22](https://github.com/JavierQuinan/ai-dev-team-marketplace/pull/22). Publication status is recorded by GitHub Releases; implementation/verification and publication are distinct states, and this section records the former without asserting the latter.
 
