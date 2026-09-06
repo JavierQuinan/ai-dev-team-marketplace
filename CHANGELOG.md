@@ -4,8 +4,12 @@ All notable changes to this repository are documented in this file. Format follo
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-09-06
+
 ### Added
 
+- Directional API-contract compatibility guidance for `reviewing-code` and `planning-implementation`, via a new shared reference (`plugins/ai-dev-team/references/api-contract-review.md`): request/response asymmetry, evidence-driven OpenAPI/Swagger detection with a valid source-based fallback when no formal spec exists, enum/path/status-code compatibility rules, and explicit false-positive guardrails. Not a new skill and not a new agent — an extension of the two existing skills' Decisions sections.
+- API breaking-change rollout/versioning/deprecation planning guidance in `planning-implementation`'s existing API-impact section (additive rollout, deprecate-then-remove, dual-field transition, parallel versions, or a coordinated rollout only with evidence every affected consumer can migrate in lockstep).
 - `NOTICE` with project attribution for Apache-2.0 distributions.
 - `.github/CODEOWNERS` with explicit ownership for repository-wide and security/release-sensitive paths.
 - `.github/dependabot.yml` for weekly GitHub Actions dependency updates.
@@ -13,11 +17,15 @@ All notable changes to this repository are documented in this file. Format follo
 
 ### Changed
 
+- Runtime-verified that delegating a stage's specialist synchronously (`run_in_background: false`) prevents the duplicate specialist-stage execution observed in earlier testing of `orchestrating-development-team`, for the cases tested — not a claim of guaranteed deterministic model behavior.
+- `orchestrating-development-team`'s task-packet correctness is now judged by material content (goal, scope, relevant files, expected output) rather than requiring literal template headings, matching what real usage actually showed.
+- Added worked Small/Medium/Large delegation right-sizing examples and boundary evals to `orchestrating-development-team`'s budget reference, based on a corrected reading of prior runtime evidence.
 - Restored the canonical Apache License 2.0 text and moved project attribution to `NOTICE`.
 - Clarified inbound contribution licensing, third-party material expectations, and the current no-CLA/no-DCO contribution model.
 - Updated `SECURITY.md` support to the current 0.2.x line and tightened coordinated-disclosure guidance.
 - Improved README/contribution discoverability and community entry points.
 - Protected the default branch with repository rules requiring pull requests, the `validate` status check, up-to-date branches, conversation resolution, linear history, squash-only merges, and blocking branch deletion/force-pushes.
+- Repository-local Claude attribution disabled so Git authorship and PR attribution remain explicitly human-controlled.
 
 ## [0.2.0] - 2026-09-04
 
