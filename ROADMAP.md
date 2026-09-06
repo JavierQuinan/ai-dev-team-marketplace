@@ -13,9 +13,14 @@
 - `orchestrating-development-team` extension — role-coverage matrix naming all requested hats against existing agents, explicit token-budget rule.
 - ADR 0004 (scope & consolidation) and ADR 0005 (database migration safety model).
 
+## IMPLEMENTED FOR v0.2.1 — UNRELEASED
+
+Implemented and runtime-verified in [PR #22](https://github.com/JavierQuinan/ai-dev-team-marketplace/pull/22), but **not yet released** — implemented/verified is not the same as shipped. This section exists so that distinction stays explicit until a v0.2.1 release actually happens.
+
+- API-contract review extension to `reviewing-code`/`planning-implementation` — narrow slice (OpenAPI/Swagger evidence detection, directional request/response compatibility, enum/path/status-code rules, false-positive guardrails) of the former FULL STACK roadmap line "API contract design/versioning skill," via a new shared reference (`references/api-contract-review.md`) plus Decisions-section additions to both skills — not a new skill, not a new agent.
+
 ## P1 (v0.2.x, next)
 
-- API-contract review extension to `reviewing-code`/`planning-implementation` — narrow slice (OpenAPI diffing, breaking-change detection) of the former FULL STACK roadmap line "API contract design/versioning skill"; a Decisions-section addition, not a new skill.
 - Advanced-E2E extension to `testing-with-playwright` — regression-suite patterns, API testing via Playwright's request context (partial QA family coverage).
 - CI-failure-diagnosis reference for `debugging-systematically` — reading `gh run view --log-failed` output as evidence, not a new skill.
 - `references/backend-patterns.md`, `references/frontend-patterns.md` — opt-in, framework-agnostic-where-possible reference material (queues/caching/multi-tenancy patterns; accessibility/performance/component-architecture heuristics). Reframes the former FULL STACK roadmap lines "Frontend-framework-specific deep dives" and "Backend performance profiling" as references, explicitly not new skills, per ADR 0001.
