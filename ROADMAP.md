@@ -15,7 +15,7 @@
 
 ## IMPLEMENTED FOR v0.2.1 — UNRELEASED
 
-Merged to `main` and runtime-verified, but **not yet released** — implemented/verified is not the same as shipped. This section exists so that distinction stays explicit until a v0.2.1 release actually happens; see [issue #19](https://github.com/JavierQuinan/ai-dev-team-marketplace/issues/19) for the runtime evidence.
+Implemented and runtime-verified in [PR #22](https://github.com/JavierQuinan/ai-dev-team-marketplace/pull/22), but **not yet released** — implemented/verified is not the same as shipped. This section exists so that distinction stays explicit until a v0.2.1 release actually happens.
 
 - API-contract review extension to `reviewing-code`/`planning-implementation` — narrow slice (OpenAPI/Swagger evidence detection, directional request/response compatibility, enum/path/status-code rules, false-positive guardrails) of the former FULL STACK roadmap line "API contract design/versioning skill," via a new shared reference (`references/api-contract-review.md`) plus Decisions-section additions to both skills — not a new skill, not a new agent.
 
