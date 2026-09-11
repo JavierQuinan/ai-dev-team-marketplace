@@ -2,6 +2,8 @@
 
 Thanks for considering a contribution. This marketplace favors a small number of excellent, composable skills over broad, shallow coverage — read this before proposing a new skill.
 
+If this is your first contribution, begin with the [first-contribution quickstart](docs/contributing/first-contribution.md). It covers issue selection, setup, validation, and the minimum information expected in a focused PR.
+
 ## Before proposing a new skill
 
 Ask first whether the need is better served by:
