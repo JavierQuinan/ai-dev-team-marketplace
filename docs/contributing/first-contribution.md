@@ -10,11 +10,23 @@ Before coding, leave a short comment describing the scope you intend to take. Th
 
 ## Set up the repository
 
+Fork `JavierQuinan/ai-dev-team-marketplace` to your GitHub account first. Then clone your fork and add the canonical repository as `upstream`:
+
 ```bash
-git clone https://github.com/JavierQuinan/ai-dev-team-marketplace.git
+git clone https://github.com/<your-user>/ai-dev-team-marketplace.git
 cd ai-dev-team-marketplace
-git checkout -b <type>/<short-description>
+git remote add upstream https://github.com/JavierQuinan/ai-dev-team-marketplace.git
+git fetch upstream
+git checkout -b <type>/<short-description> upstream/main
 ```
+
+Push contribution branches to your fork:
+
+```bash
+git push -u origin <type>/<short-description>
+```
+
+Open the pull request from your fork branch into `JavierQuinan/ai-dev-team-marketplace:main`.
 
 The repository has no application build step. Its source is validated as plugin content.
 
