@@ -153,19 +153,40 @@ A security review should not invent vulnerabilities without evidence. If a
 risk cannot be confirmed, it should be reported as a hypothesis or follow-up,
 not as a finding.
 
-## 7. Prepare the rollout without deploying
+## 7. Make a release-readiness decision
+
+Relevant workflow:
+
+- `preparing-releases`
+- `release-manager`
+
+Before producing a rollout plan, the release workflow evaluates the current
+evidence and returns a readiness verdict:
+
+- **GO** — required checks were actually run and passed;
+- **CONDITIONAL GO** — known, bounded evidence is still missing;
+- **NO-GO** — a blocking test, security, compatibility, or release issue remains.
+
+A **NO-GO** stops the rollout-planning path. A **CONDITIONAL GO** may proceed
+only when the stated missing evidence is explicitly acceptable for planning and
+the resulting plan keeps those conditions visible. The plugin should never turn
+“the code looks fine” into “ready for production” without fresh verification.
+
+## 8. Prepare the rollout without deploying
 
 Relevant workflow:
 
 - `planning-deployment`
 - `release-manager`
 
-The deployment workflow produces a plan, not an automatic production deploy.
+This stage runs only when the release-readiness verdict permits it. The
+deployment workflow produces a plan, not an automatic production deploy.
 
 Example rollout checks:
 
 ```text
 Pre-deploy:
+  - release-readiness verdict permits rollout planning
   - relevant tests green
   - no new migration required
   - API compatibility reviewed
@@ -184,21 +205,6 @@ Rollback:
 
 Any irreversible or production action still requires explicit user confirmation
 under the shared safety baseline.
-
-## 8. Make a release-readiness decision
-
-Relevant workflow:
-
-- `preparing-releases`
-
-The final result should be a decision backed by current evidence:
-
-- **GO** — required checks were actually run and passed;
-- **CONDITIONAL GO** — known, bounded evidence is still missing;
-- **NO-GO** — a blocking test, security, compatibility, or deployment issue remains.
-
-The plugin should never turn “the code looks fine” into “ready for production”
-without fresh verification.
 
 ## Why the composition matters
 
