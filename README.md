@@ -162,9 +162,11 @@ CI (`.github/workflows/validate.yml`) runs both on every pull request and push t
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) — in short: prefer extending an existing skill's `references/` over adding a new skill, keep `SKILL.md` files small and evidence-driven, and include evals with any new/changed skill.
+New contributor? Start with the [first-contribution quickstart](docs/contributing/first-contribution.md), then use [CONTRIBUTING.md](CONTRIBUTING.md) for the full authoring and validation rules.
 
-Browse open [`help wanted`](https://github.com/JavierQuinan/ai-dev-team-marketplace/issues?q=is%3Aopen+label%3A%22help+wanted%22) issues for focused contribution opportunities. External bug reports, focused PRs, runtime evidence and documentation improvements are welcome; contributions should remain independently useful rather than being created only to generate repository activity.
+Prefer extending an existing skill's `references/` over adding a new skill, keep `SKILL.md` files small and evidence-driven, and include evals with any new/changed skill.
+
+Browse open [`good first issue`](https://github.com/JavierQuinan/ai-dev-team-marketplace/issues?q=is%3Aopen+label%3A%22good+first+issue%22) and [`help wanted`](https://github.com/JavierQuinan/ai-dev-team-marketplace/issues?q=is%3Aopen+label%3A%22help+wanted%22) issues for focused contribution opportunities. External bug reports, focused PRs, runtime evidence and documentation improvements are welcome; contributions should remain independently useful rather than being created only to generate repository activity.
 
 ## Security
 
