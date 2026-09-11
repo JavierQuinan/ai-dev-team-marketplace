@@ -16,6 +16,8 @@ Open-source marketplace of reusable AI software-development skills, agents, and 
 
 Then ask Claude Code to continue an existing project, review a PR, audit security, write tests, plan a migration, debug a regression, or prepare a release. The plugin routes the task to a scoped skill or specialized agent instead of relying on a single oversized prompt.
 
+Want to see how the pieces compose on one realistic task? Read the [end-to-end workflow walkthrough](docs/showcase/end-to-end-workflow.md).
+
 ## Why this exists
 
 Reimplementing the same "act as my dev team" instructions per repository doesn't scale, and copy-pasted prompts drift. This marketplace ships that behavior as installable, versioned, discoverable **skills** and **agents** instead — detected from your repository's actual evidence, not hardcoded to one framework or one project.
