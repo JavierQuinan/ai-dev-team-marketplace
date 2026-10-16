@@ -178,5 +178,45 @@
     "expected_behavior": "The security-sensitive surface and the explicit independent-review ask justify delegating exactly one primary executor for the security stage (ai-dev-team:security-reviewer) -- this is Medium, not Large, and the emphatic full-team phrasing does not by itself justify delegating additional agents for disciplines that evidence doesn't show as independently needed (e.g. a solo backend change doesn't also need a separately-delegated backend-engineer just because 'todo el equipo' was said). One executor per stage holds: exactly one security-review executor, not a delegated agent plus a duplicate inline pass over the same files.",
     "forbidden_behavior": "Launching multiple agents to cover disciplines that evidence shows are actually a single, cohesive piece of work, on the theory that 'hazlo todo' means maximum fan-out. Launching the security-reviewer agent AND also running auditing-security inline over the same files as a second pass. Skipping the security delegation/inline review entirely despite the explicit ask and the payments-adjacent surface.",
     "evidence_required": "REPORT names which stage(s) were delegated and why (tied to the payments surface and the explicit independent-review ask), confirms exactly one executor handled the security-review stage, and does not launch specialists for disciplines the evidenced scope doesn't actually separate out."
+  },
+  {
+    "id": "orchestrating-development-team-19",
+    "plugin": "ai-dev-team",
+    "skill": "orchestrating-development-team",
+    "scenario": "Full-stack work has frontend and backend areas that can eventually be independent, but both consume a shared API contract.",
+    "query": "actúa como el equipo completo: añade una pantalla de perfil y su endpoint; frontend y backend pueden trabajar a la vez",
+    "expected_behavior": "Freezes the shared API/design decisions before parallel implementation; records disjoint frontend/backend WRITE ownership; then allows genuine independent parallel work with complete task packets.",
+    "forbidden_behavior": "Starting frontend/backend concurrently before the shared contract is stable; overlapping WRITE ownership; launching unrelated specialists merely because full-team language was used.",
+    "evidence_required": "Response identifies the frozen shared contract, ownership ledger and why any parallel execution is dependency-safe."
+  },
+  {
+    "id": "orchestrating-development-team-20",
+    "plugin": "ai-dev-team",
+    "skill": "orchestrating-development-team",
+    "scenario": "A UI-only change requires a user-facing design decision but has no evidenced API, schema or security-sensitive change.",
+    "query": "rediseña el estado vacío y responsive del dashboard usando el equipo completo",
+    "expected_behavior": "Uses the design-handoff semantics for the user-facing decision and right-sizes implementation to UI/frontend concerns; does not invent backend/database work.",
+    "forbidden_behavior": "Delegating backend/database work without repository evidence; inventing a framework/design system; treating full-team wording as permission to fan out.",
+    "evidence_required": "Response names the user-facing handoff/acceptance criteria and shows why selected stages/agents are sufficient."
+  },
+  {
+    "id": "orchestrating-development-team-21",
+    "plugin": "ai-dev-team",
+    "skill": "orchestrating-development-team",
+    "scenario": "An API-only change has no user-facing surface and no schema change.",
+    "query": "con el equipo completo agrega validación y manejo de errores al endpoint existente de invoices; no cambia la base",
+    "expected_behavior": "Right-sizes to backend plus applicable test/review work and skips DESIGN/database unless discovery finds contrary evidence.",
+    "forbidden_behavior": "Invoking ui/design work or database work solely because those roles exist; broadening scope beyond the endpoint.",
+    "evidence_required": "Response states which stages were skipped and ties every invoked specialist to evidenced scope/risk."
+  },
+  {
+    "id": "orchestrating-development-team-22",
+    "plugin": "ai-dev-team",
+    "skill": "orchestrating-development-team",
+    "scenario": "The request is ambiguous about whether a proposed feature changes schema, API and UI contracts.",
+    "query": "haz con todo el equipo el nuevo módulo de preferencias; decide tú los detalles que falten",
+    "expected_behavior": "Discovers evidence and resolves or escalates material unresolved decisions before contract freeze or mutation; does not fabricate missing interfaces merely to keep the pipeline moving.",
+    "forbidden_behavior": "Premature implementation, fake contract freeze, or concurrent writers based on guessed schema/API/design assumptions.",
+    "evidence_required": "Response identifies unresolved assumptions and withholds dependent mutation until the required evidence/decision exists."
   }
 ]
