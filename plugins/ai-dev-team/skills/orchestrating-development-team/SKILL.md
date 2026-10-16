@@ -18,6 +18,8 @@ DISCOVER → ARCHITECT → PLAN → IMPLEMENT → DATABASE → TEST → REVIEW �
 
 Every stage is conditional on evidence — never run mechanically. See `references/orchestration-budget.md` for the stage policies (when REVIEW's security leg is mandatory, the test/database/architecture/release-deploy boundaries) referenced below.
 
+For non-trivial cross-stage work, stage outputs are governed by [`references/orchestration-contracts.md`](../../references/orchestration-contracts.md). Treat those as semantic handoff requirements: downstream work consumes concrete artifacts, dependent stages serialize until shared decisions are stable, and parallel writers start only after contract freeze with disjoint ownership.
+
 | Stage | Delegates to | Produces | Runs when |
 |---|---|---|---|
 | DISCOVER | `analyzing-codebase`, optionally `ai-dev-team:repository-explorer` for a large/unfamiliar tree | Verified technical map | Always, right-sized to scope |
