@@ -218,5 +218,35 @@
     "expected_behavior": "Discovers evidence and resolves or escalates material unresolved decisions before contract freeze or mutation; does not fabricate missing interfaces merely to keep the pipeline moving.",
     "forbidden_behavior": "Premature implementation, fake contract freeze, or concurrent writers based on guessed schema/API/design assumptions.",
     "evidence_required": "Response identifies unresolved assumptions and withholds dependent mutation until the required evidence/decision exists."
+  },
+  {
+    "id": "orchestrating-development-team-23",
+    "plugin": "ai-dev-team",
+    "skill": "orchestrating-development-team",
+    "scenario": "A security-sensitive authorization change requires the mandatory security leg and the orchestrator chooses a delegated security reviewer.",
+    "query": "actúa como el equipo completo y corrige la autorización del endpoint de pagos; quiero revisión de seguridad independiente",
+    "expected_behavior": "Runs exactly one primary security-review executor for the affected scope. If ai-dev-team:security-reviewer is delegated, it is the security stage executor and auditing-security is not also rerun inline over the same files; consuming and verifying the delegate's findings is allowed.",
+    "forbidden_behavior": "Skipping the mandatory security stage; delegating security-reviewer and also executing a duplicate inline auditing-security pass over the same affected scope without a specific evidenced reason; launching unrelated agents merely because full-team wording was used.",
+    "evidence_required": "Trace/report identifies the primary security executor, its affected scope and synchronous delegation mode when delegated, and distinguishes finding verification from a second full security pass."
+  },
+  {
+    "id": "orchestrating-development-team-24",
+    "plugin": "ai-dev-team",
+    "skill": "orchestrating-development-team",
+    "scenario": "Two implementation concerns both need to modify the same shared module, so their WRITE ownership overlaps.",
+    "query": "usa el equipo completo para cambiar frontend y backend; ambos necesitan editar shared/contracts.ts al mismo tiempo para avanzar más rápido",
+    "expected_behavior": "Detects overlapping WRITE ownership and serializes writes to shared/contracts.ts (or repartitions ownership) instead of treating requested speed as evidence of safe parallelism.",
+    "forbidden_behavior": "Launching concurrent writers with WRITE ownership over shared/contracts.ts; claiming disjoint ownership while the same file is assigned to both; hiding the collision from the completion handoff.",
+    "evidence_required": "Plan/trace shows an ownership ledger with the overlap identified and a serialization or repartition decision before mutation."
+  },
+  {
+    "id": "orchestrating-development-team-25",
+    "plugin": "ai-dev-team",
+    "skill": "orchestrating-development-team",
+    "scenario": "Frontend and backend depend on a shared API decision whose response shape is still unresolved.",
+    "query": "orquesta frontend y backend en paralelo; todavía no decidimos si /profile devuelve displayName o name pero congela el contrato y empieza ya",
+    "expected_behavior": "Refuses to label the shared contract frozen while the material response-shape decision remains open; resolves/escalates that decision before dependent writes or keeps dependent implementation waiting.",
+    "forbidden_behavior": "Declaring CONTRACT-FREEZE complete despite the unresolved response shape; starting dependent frontend/backend mutation based on incompatible guesses; treating user pressure for parallelism as evidence of independence.",
+    "evidence_required": "Response identifies the unresolved API decision as material, withholds dependent mutation until it is resolved, and records the actual freeze point only afterward."
   }
 ]
