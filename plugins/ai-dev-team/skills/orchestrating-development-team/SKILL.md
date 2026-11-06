@@ -13,16 +13,20 @@ Coordinate the plugin's skills and agents (see [agents/](../../agents/)) through
 ## Pipeline
 
 ```
-DISCOVER → ARCHITECT → PLAN → IMPLEMENT → DATABASE → TEST → REVIEW → FIX → VERIFY → RELEASE → DEPLOY-PLAN → REPORT
+DISCOVER → ARCHITECT → DESIGN → PLAN → CONTRACT-FREEZE → IMPLEMENT → DATABASE → TEST → REVIEW → FIX → VERIFY → RELEASE → DEPLOY-PLAN → REPORT
 ```
 
 Every stage is conditional on evidence — never run mechanically. See `references/orchestration-budget.md` for the stage policies (when REVIEW's security leg is mandatory, the test/database/architecture/release-deploy boundaries) referenced below.
+
+For non-trivial cross-stage work, stage outputs are governed by [`references/orchestration-contracts.md`](../../references/orchestration-contracts.md). Treat those as semantic handoff requirements: downstream work consumes concrete artifacts, dependent stages serialize until shared decisions are stable, and parallel writers start only after contract freeze with disjoint ownership.
 
 | Stage | Delegates to | Produces | Runs when |
 |---|---|---|---|
 | DISCOVER | `analyzing-codebase`, optionally `ai-dev-team:repository-explorer` for a large/unfamiliar tree | Verified technical map | Always, right-sized to scope |
 | ARCHITECT | `reviewing-architecture` (`ai-dev-team:solution-architect`) | Decision/ADR | Only a genuine structural design fork exists |
+| DESIGN | Orchestrator inline in 2A; consumes repository evidence and the design-handoff contract. A dedicated designer role belongs to 2B/#31 | Design handoff | User-facing implementation depends on unresolved UX/layout/state/responsive/accessibility decisions |
 | PLAN | `planning-implementation`, optionally `ai-dev-team:solution-architect` | Scoped implementation plan | Non-trivial change |
+| CONTRACT-FREEZE | Orchestrator coordination gate; no specialist executor | Stable shared decisions + ownership ledger | Before dependent implementation is partitioned or parallel writers begin; skip when no shared contract exists |
 | IMPLEMENT | `implementing-features`, delegating file-scoped work to `ai-dev-team:frontend-engineer`/`backend-engineer`/`database-engineer` | Working code, updated tests | Always for a build/change request |
 | DATABASE | `managing-database-migrations` (`ai-dev-team:database-engineer`) | Safe migration, ADR 0005 safety-level classification | Schema/migration/RLS involved |
 | TEST | `writing-automated-tests` (unit/integration) and/or `testing-with-playwright` (E2E), via `ai-dev-team:qa-engineer`; existing suite still run regardless | Executed results, not claims | Always some verification; both legs only when both apply |
@@ -33,7 +37,7 @@ Every stage is conditional on evidence — never run mechanically. See `referenc
 | DEPLOY-PLAN | `planning-deployment` (`ai-dev-team:release-manager`) | Deployment plan — never an executed deploy | Deploy/rollout/rollback planning was requested, and only once RELEASE readiness allows it |
 | REPORT | this skill | What shipped, what's deferred, what needs human sign-off | Always, last |
 
-Skip stages that don't apply. Never skip REVIEW's security leg for anything touching authorization, tenancy, payments, secrets, or supply-chain surface.
+Skip stages that don't apply. `DESIGN` in 2A is a semantic handoff stage, not a new agent: do not invent or delegate a `ui-ux-designer` until 2B/#31 implements that role. `CONTRACT-FREEZE` is a coordination gate, not ceremony: it is satisfied only when material upstream decisions consumed by downstream writers are stable; if none exist, skip it. Never skip REVIEW's security leg for anything touching authorization, tenancy, payments, secrets, or supply-chain surface.
 
 ## Role coverage matrix (10 agents, 0 new)
 
@@ -70,6 +74,7 @@ When the user says "actúa como el equipo completo" / "hazlo todo" / "full dev t
 ## Coordination rules
 
 - **One area of the codebase, one active writer at a time.** Partition by file/directory ownership before parallelizing; serialize specific files if genuine overlap is unavoidable. Never parallelize an architecture decision with implementation that depends on it, or a migration's design with backend work that needs the final schema.
+- **Contract freeze is evidence, not a label.** Before dependent writers start, identify the shared design/API/data/architecture decisions they consume and confirm no material upstream decision remains open. If an unresolved decision can change a downstream interface or ownership boundary, the contract is not frozen and dependent mutation waits.
 - Each stage hands off a concrete artifact (a plan, a diff, a test result, a findings list) to the next — not a vague "looks good."
 - Escalate to the user, don't silently proceed, when: the plan implies an irreversible action (see [enforcing-safety-baseline](../enforcing-safety-baseline/SKILL.md)), the discovered scope is much larger than the request implied, or *fixing* a REVIEW/TEST finding would itself require one of the safety gates below. **A REVIEW BLOCKER by itself is not an escalation trigger** — a reversible, in-scope BLOCKER (a missing authorization check, a validation gap, a regression, a failing test) loops FIX→VERIFY autonomously instead, per Decisions below; only the *fix* needing an irreversible action, a destructive DB operation, a new dependency, or similar turns it into one.
 - Use the agents in [agents/](../../agents/) for role-specific execution; use this skill's own reasoning for sequencing, budgeting, and conflict avoidance, not for doing the specialist work yourself.
