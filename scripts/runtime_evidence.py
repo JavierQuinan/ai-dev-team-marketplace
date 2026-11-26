@@ -34,6 +34,7 @@ def verify(trace):
     if not isinstance(events, list) or not events:
         return "INCONCLUSIVE", missing + ["missing events"]
     stages, agents, primary, active = set(), set(), set(), {}
+    seen_calls = set()
     frozen = False
     security_count = 0
     checks = {}
@@ -62,14 +63,19 @@ def verify(trace):
                 missing.append("incomplete delegation attribution")
                 continue
             agents.add(call)
-            if call in active:
-                failures.append("duplicate active call")
+            if call in seen_calls:
+                failures.append("duplicate call identity")
+            seen_calls.add(call)
             if e.get("run_in_background") is not False:
                 missing.append("parallel delegation needs independent trace review")
             if e.get("primary") is True:
-                if stage in primary:
-                    failures.append("duplicate primary stage " + stage)
-                primary.add(stage)
+                leg = e.get("leg", stage)
+                if not isinstance(leg, str):
+                    missing.append("invalid primary leg")
+                    continue
+                if leg in primary:
+                    failures.append("duplicate primary stage " + leg)
+                primary.add(leg)
                 if agent == "security-reviewer":
                     security_count += 1
             paths = e.get("write_paths")
@@ -77,6 +83,10 @@ def verify(trace):
                 missing.append("invalid ownership declaration")
                 continue
             normalized = [p.casefold().split("/") for p in paths]
+            if trace["scenario"] == "ui-only" and agent in {"backend-engineer", "database-engineer"}:
+                failures.append("unjustified agent in UI-only fixture")
+            if trace["scenario"] == "api-only" and agent == "ui-ux-designer":
+                failures.append("unjustified designer in API-only fixture")
             for other in active.values():
                 for a in normalized:
                     for b in other:
