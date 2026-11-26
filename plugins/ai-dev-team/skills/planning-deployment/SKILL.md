@@ -65,3 +65,6 @@ A GO from `preparing-releases` does not authorize this skill to deploy, and a de
 - No `Bash` call in this session executed an actual deployment, migration-apply, or remote-mutating command — the plan stops at the human-run command, every time, regardless of confirmation wording.
 - Rollback has a concrete trigger and procedure, never "roll back if needed."
 - Every structure section is present, filled or explicitly `N/A`/`NOT VERIFIED` with a reason.
+
+## Delivery handoff
+Use [delivery evidence](../../references/delivery-evidence.md). Record artifact, target, prerequisites, rollout, rollback and verification owner. Never execute deployment or claim deployed without external evidence.
