@@ -53,5 +53,21 @@ class RuntimeEvidenceTests(unittest.TestCase):
         self.assertEqual(verify(None)[0],"INCONCLUSIVE")
         self.assertEqual(verify({"scenario":[]})[0],"INCONCLUSIVE")
 
+    def test_distinct_review_legs(self):
+        t=trace()
+        e={"kind":"delegate","agent":"code-reviewer","call_id":"a","parent_id":"root",
+           "stage":"REVIEW","leg":"REVIEW:code","primary":True,"run_in_background":False,"write_paths":[]}
+        t["events"]=number(t["events"][:2]+[e,{"kind":"end","call_id":"a"},
+            {**e,"agent":"security-reviewer","call_id":"b","leg":"REVIEW:security"},
+            {"kind":"end","call_id":"b"}]+t["events"][2:])
+        self.assertEqual(verify(t)[0],"INCONCLUSIVE")
+
+    def test_reused_call(self):
+        t=trace()
+        e={"kind":"delegate","agent":"qa-engineer","call_id":"a","parent_id":"root",
+           "stage":"TEST","primary":False,"run_in_background":False,"write_paths":[]}
+        t["events"]=number(t["events"][:2]+[e,{"kind":"end","call_id":"a"},e]+t["events"][2:])
+        self.assertEqual(verify(t)[0],"FAIL")
+
 if __name__=="__main__":
     unittest.main()
