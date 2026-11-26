@@ -62,3 +62,7 @@ Domain-specific *reference* add-ons (not new mandatory skills) for common vertic
 
 - Growing past a small number of excellent, composable skills per plugin. New families should become new plugins in this marketplace (or new opt-in references) rather than bloating `ai-dev-team` into a monolith. Reaffirmed for v0.2.0 in ADR 0004: mega-skills are prohibited absent concrete future evidence of real-world friction from the split, not design-time convenience.
 - Hardcoding any specific customer/project's domain model, naming, or infrastructure into shared skill content.
+
+## Ecosystem evolution (proposed)
+
+See [ecosystem strategy](docs/strategy/ECOSYSTEM.md) and [team catalog](docs/strategy/TEAM_CATALOG.md). These proposals do not supersede earlier ADR restrictions until a reviewed ADR explicitly approves a new role or plugin. Existing phase 2 draft PRs retain their acceptance gates.
