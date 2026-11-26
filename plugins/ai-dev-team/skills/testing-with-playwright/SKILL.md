@@ -33,3 +33,7 @@ Extend the project's actual Playwright setup rather than inventing a parallel on
 - Every test added was actually executed at least once in this session, with the real result reported.
 - Failures are classified (app/test/environment) with the reasoning, not just re-run until green.
 - No `waitForTimeout`-as-synchronization was introduced.
+
+## Coordinated quality coverage
+
+Use [quality loop](../../references/quality-loop.md) for acceptance mapping. Where evidenced and supported by existing tooling, cover API request/response compatibility via Playwright request context, responsive viewports, keyboard/focus behavior and applicable accessible names. Use existing axe tooling if available; manual checks do not establish WCAG conformance. Visual snapshots need controlled baselines; never regenerate a baseline to hide regression. Mark unavailable browser/API/accessibility checks NOT RUN.
