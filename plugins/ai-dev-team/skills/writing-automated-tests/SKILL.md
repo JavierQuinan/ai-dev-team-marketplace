@@ -43,3 +43,7 @@ A happy-path test for tenant A alone is not sufficient. Include at least one neg
 - No assertion was weakened, and no test was written or kept to encode a discovered application bug as expected/passing behavior — a test against intended behavior is allowed, and expected, to fail red when the code is actually wrong.
 - A claimed regression test either demonstrates red→green or explicitly states why the pre-fix state couldn't be reproduced.
 - No E2E/browser test was authored here instead of being routed to `testing-with-playwright`.
+
+## Coordinated quality coverage
+
+Use [quality loop](../../references/quality-loop.md) for acceptance mapping and regression evidence. For API changes verify relevant request/response compatibility, malformed input, authorization and contract boundaries using existing test tooling. Contract evidence determines the cases; do not invent an OpenAPI specification. Required checks not executed remain NOT RUN.
