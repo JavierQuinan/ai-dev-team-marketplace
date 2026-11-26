@@ -24,7 +24,7 @@ For non-trivial cross-stage work, stage outputs are governed by [`references/orc
 |---|---|---|---|
 | DISCOVER | `analyzing-codebase`, optionally `ai-dev-team:repository-explorer` for a large/unfamiliar tree | Verified technical map | Always, right-sized to scope |
 | ARCHITECT | `reviewing-architecture` (`ai-dev-team:solution-architect`) | Decision/ADR | Only a genuine structural design fork exists |
-| DESIGN | Orchestrator inline in 2A; consumes repository evidence and the design-handoff contract. A dedicated designer role belongs to 2B/#31 | Design handoff | User-facing implementation depends on unresolved UX/layout/state/responsive/accessibility decisions |
+| DESIGN | `designing-user-experiences` (`ai-dev-team:ui-ux-designer` when isolated context is justified; otherwise inline) | Design handoff | User-facing implementation depends on unresolved UX/layout/state/responsive/accessibility decisions |
 | PLAN | `planning-implementation`, optionally `ai-dev-team:solution-architect` | Scoped implementation plan | Non-trivial change |
 | CONTRACT-FREEZE | Orchestrator coordination gate; no specialist executor | Stable shared decisions + ownership ledger | Before dependent implementation is partitioned or parallel writers begin; skip when no shared contract exists |
 | IMPLEMENT | `implementing-features`, delegating file-scoped work to `ai-dev-team:frontend-engineer`/`backend-engineer`/`database-engineer` | Working code, updated tests | Always for a build/change request |
@@ -37,14 +37,15 @@ For non-trivial cross-stage work, stage outputs are governed by [`references/orc
 | DEPLOY-PLAN | `planning-deployment` (`ai-dev-team:release-manager`) | Deployment plan — never an executed deploy | Deploy/rollout/rollback planning was requested, and only once RELEASE readiness allows it |
 | REPORT | this skill | What shipped, what's deferred, what needs human sign-off | Always, last |
 
-Skip stages that don't apply. `DESIGN` in 2A is a semantic handoff stage, not a new agent: do not invent or delegate a `ui-ux-designer` until 2B/#31 implements that role. `CONTRACT-FREEZE` is a coordination gate, not ceremony: it is satisfied only when material upstream decisions consumed by downstream writers are stable; if none exist, skip it. Never skip REVIEW's security leg for anything touching authorization, tenancy, payments, secrets, or supply-chain surface.
+Skip stages that don't apply. `DESIGN` runs once, inline or via the read-only `ui-ux-designer`, only when a material user-facing decision remains open. `CONTRACT-FREEZE` is a coordination gate, not ceremony: it is satisfied only when material upstream decisions consumed by downstream writers are stable; if none exist, skip it. Never skip REVIEW's security leg for anything touching authorization, tenancy, payments, secrets, or supply-chain surface.
 
-## Role coverage matrix (10 agents, 0 new)
+## Role coverage matrix (11 agents)
 
 | Agent | Primary skill | Secondary |
 |---|---|---|
 | `repository-explorer` | `analyzing-codebase` | — |
 | `solution-architect` | `reviewing-architecture` | `planning-implementation` |
+| `ui-ux-designer` | `designing-user-experiences` | — |
 | `frontend-engineer` | `implementing-features` | — |
 | `backend-engineer` | `implementing-features` | — |
 | `database-engineer` | `managing-database-migrations` | `implementing-features` (generic DB-adjacent work with no schema/migration/RLS) |
@@ -58,7 +59,7 @@ Skip stages that don't apply. `DESIGN` in 2A is a semantic handoff stage, not a 
 
 Use the `ai-dev-team:<agent-name>` scoped identifier when delegating through the Agent tool, not the bare name — plugin agents are namespaced, and the scoped identifier is what disambiguates which one actually runs when another installed plugin or a project/user-level agent shares the bare name.
 
-**"Full team" never means "launch all 10 agents."** Default to doing a step inline; spawn a subagent only when it earns its isolated-context cost (see `references/orchestration-budget.md` for the full model: task size bands from Tiny (0 agents) to Large (3–6), the inline-first principle, task packets, no-duplicate-discovery, one-executor-per-stage, and the one-writer-per-area ownership ledger). A ten-agent fanout for a small task is the failure mode this budget exists to prevent, not a sign of thoroughness. **A stage should run once, either inline or delegated, not both** — delegating `ai-dev-team:security-reviewer` and also running `auditing-security` inline over the same change is duplicated work, not extra safety; see `references/orchestration-budget.md#one-executor-per-stage` for the narrow exception, the `run_in_background: false` mitigation, why cross-checking a delegate's specific findings doesn't count as a second review, and the honest limits of what this can actually guarantee versus what must be disclosed when it doesn't hold.
+**"Full team" never means "launch all agents."** Default to doing a step inline; spawn a subagent only when it earns its isolated-context cost (see `references/orchestration-budget.md` for the full model: task size bands from Tiny (0 agents) to Large (3–6), the inline-first principle, task packets, no-duplicate-discovery, one-executor-per-stage, and the one-writer-per-area ownership ledger). An all-agent fanout for a small task is the failure mode this budget exists to prevent, not a sign of thoroughness. **A stage should run once, either inline or delegated, not both** — delegating `ai-dev-team:security-reviewer` and also running `auditing-security` inline over the same change is duplicated work, not extra safety; see `references/orchestration-budget.md#one-executor-per-stage` for the narrow exception, the `run_in_background: false` mitigation, why cross-checking a delegate's specific findings doesn't count as a second review, and the honest limits of what this can actually guarantee versus what must be disclosed when it doesn't hold.
 
 ## Full autonomous team contract
 
