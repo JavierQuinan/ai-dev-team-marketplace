@@ -101,3 +101,6 @@ When the user says "actúa como el equipo completo" / "hazlo todo" / "full dev t
 - No two agents held write access to the same file/area concurrently.
 - A primary executor was identified for each specialist stage before delegating (see `references/orchestration-budget.md`); if a duplicate read-only specialist pass happened anyway, REPORT discloses it plainly as a budget/efficiency deviation rather than hiding it or presenting the duplicate pass as extra assurance it doesn't actually provide — cross-checking a delegate's cited findings is not a duplicate run and needs no disclosure. No duplicate *mutation* and no writer overlap ever occurred, regardless.
 - No claim of "deployed" or "in production" appears without actual external evidence of it — a deployment plan is not a deployment.
+
+## CI and delivery coordination
+For evidenced CI failure route to the existing debugger and CI diagnosis reference; do not add a parallel review executor. RELEASE and DEPLOY-PLAN consume the [delivery evidence](../../references/delivery-evidence.md) contract and current quality ledger. No release GO with missing mandatory checks.
