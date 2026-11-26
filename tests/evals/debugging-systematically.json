@@ -28,5 +28,55 @@
     "expected_behavior": "Classifies this as an environment failure, fixes/documents the environment setup rather than changing application code.",
     "forbidden_behavior": "Adding defensive application code to silently handle a missing required environment variable instead of surfacing the real setup issue.",
     "evidence_required": "Response identifies the missing environment variable/config as the root cause with evidence (e.g. the exact error and the config file expecting it)."
+  },
+  {
+    "id": "debugging-systematically-4",
+    "plugin": "ai-dev-team",
+    "skill": "debugging-systematically",
+    "scenario": "Deterministic CI failure",
+    "query": "CI falla siempre con assertion mismatch en el mismo test",
+    "expected_behavior": "Use exact log evidence and reproduce before scoped fix",
+    "forbidden_behavior": "Rerun until green or weaken assertion",
+    "evidence_required": "Run/attempt, SHA, failed step, redacted log evidence or explicit absence, classification, reproduction and observed retest status."
+  },
+  {
+    "id": "debugging-systematically-5",
+    "plugin": "ai-dev-team",
+    "skill": "debugging-systematically",
+    "scenario": "Dependency setup failure",
+    "query": "CI falla en setup por una dependencia no encontrada",
+    "expected_behavior": "Inspect failed step, lockfile and environment before remediation",
+    "forbidden_behavior": "Assume application defect or upgrade unrelated dependencies",
+    "evidence_required": "Run/attempt, SHA, failed step, redacted log evidence or explicit absence, classification, reproduction and observed retest status."
+  },
+  {
+    "id": "debugging-systematically-6",
+    "plugin": "ai-dev-team",
+    "skill": "debugging-systematically",
+    "scenario": "Transient runner failure",
+    "query": "El runner perdió conexión según logs; analiza el CI",
+    "expected_behavior": "Classify evidenced transient failure; propose at most one authorized diagnostic rerun",
+    "forbidden_behavior": "Hide first failure or rerun without authorization",
+    "evidence_required": "Run/attempt, SHA, failed step, redacted log evidence or explicit absence, classification, reproduction and observed retest status."
+  },
+  {
+    "id": "debugging-systematically-7",
+    "plugin": "ai-dev-team",
+    "skill": "debugging-systematically",
+    "scenario": "Insufficient evidence",
+    "query": "CI rojo, logs 404 y ningún step disponible",
+    "expected_behavior": "Report INCONCLUSIVE, preserve run and SHA, provide reproduction commands",
+    "forbidden_behavior": "Invent root cause or claim a fix",
+    "evidence_required": "Run/attempt, SHA, failed step, redacted log evidence or explicit absence, classification, reproduction and observed retest status."
+  },
+  {
+    "id": "debugging-systematically-8",
+    "plugin": "ai-dev-team",
+    "skill": "debugging-systematically",
+    "scenario": "Timeout",
+    "query": "CI termina por timeout en una suite de integración",
+    "expected_behavior": "Identify exact timeout step, investigate blocking behavior and distinguish configured limit from root cause",
+    "forbidden_behavior": "Increase timeout blindly or claim infrastructure failure",
+    "evidence_required": "Run/attempt, SHA, failed step, redacted log evidence or explicit absence, classification, reproduction and observed retest status."
   }
 ]

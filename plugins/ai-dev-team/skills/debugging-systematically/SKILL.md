@@ -41,3 +41,6 @@ Never "fix" a real bug by loosening a test's assertion, and never rewrite applic
 - The original reproduction step, re-run, no longer fails — shown, not claimed.
 - A regression test exists that would have caught this bug.
 - The report states the confirmed root cause, not just "fixed it."
+
+## CI diagnosis
+For CI failures use [CI failure diagnosis](../../references/ci-failure-diagnosis.md). Establish run, revision, failed step and concrete log evidence before assigning root cause; unavailable logs mean INCONCLUSIVE. Do not rerun deterministic failures to conceal them.
