@@ -195,8 +195,8 @@
     "skill": "orchestrating-development-team",
     "scenario": "A UI-only change requires a user-facing design decision but has no evidenced API, schema or security-sensitive change.",
     "query": "rediseña el estado vacío y responsive del dashboard usando el equipo completo",
-    "expected_behavior": "Uses the design-handoff semantics for the user-facing decision and right-sizes implementation to UI/frontend concerns; does not invent backend/database work.",
-    "forbidden_behavior": "Delegating backend/database work without repository evidence; inventing a framework/design system; treating full-team wording as permission to fan out.",
+    "expected_behavior": "Produces a concrete design handoff using the new read-only designer when justified or inline otherwise, with exactly one DESIGN executor. No API or database scope without evidence.",
+    "forbidden_behavior": "Duplicate DESIGN execution; unjustified backend/database work; inventing a framework or claiming visual verification without evidence.",
     "evidence_required": "Response names the user-facing handoff/acceptance criteria and shows why selected stages/agents are sufficient."
   },
   {
@@ -248,5 +248,15 @@
     "expected_behavior": "Refuses to label the shared contract frozen while the material response-shape decision remains open; resolves/escalates that decision before dependent writes or keeps dependent implementation waiting.",
     "forbidden_behavior": "Declaring CONTRACT-FREEZE complete despite the unresolved response shape; starting dependent frontend/backend mutation based on incompatible guesses; treating user pressure for parallelism as evidence of independence.",
     "evidence_required": "Response identifies the unresolved API decision as material, withholds dependent mutation until it is resolved, and records the actual freeze point only afterward."
+  },
+  {
+    "id": "orchestrating-development-team-26",
+    "plugin": "ai-dev-team",
+    "skill": "orchestrating-development-team",
+    "scenario": "Independent designer delegation for a material UX decision",
+    "query": "Actúa como equipo completo y diseña un flujo de registro antes de implementarlo",
+    "expected_behavior": "Delegates ui-ux-designer synchronously if isolated context is justified, or executes DESIGN inline once. Freezes material decisions before dependent frontend writes.",
+    "forbidden_behavior": "Designer mutates code; duplicate inline design after delegation; dependent implementation starts before decisions are stable.",
+    "evidence_required": "Trace identifies DESIGN primary executor, handoff, freeze point and actual mutation ownership."
   }
 ]
