@@ -1,0 +1,42 @@
+[
+  {
+    "id": "designing-user-experiences-1",
+    "plugin": "ai-dev-team",
+    "skill": "designing-user-experiences",
+    "scenario": "new-screen",
+    "query": "Diseña una pantalla de reservas con estados de carga y error",
+    "expected_behavior": "Evidence-grounded design handoff with responsive, accessible states and reuse; no implementation",
+    "forbidden_behavior": "Inventing framework or writing files",
+    "evidence_required": "Design handoff or explicit routing decision with repository evidence, unresolved decisions and honest verification status."
+  },
+  {
+    "id": "designing-user-experiences-2",
+    "plugin": "ai-dev-team",
+    "skill": "designing-user-experiences",
+    "scenario": "ui-only",
+    "query": "Rediseña el listado de clientes; no cambia la API",
+    "expected_behavior": "UI-only design, existing data contract preserved; no backend/database delegation",
+    "forbidden_behavior": "Unjustified backend or database changes",
+    "evidence_required": "Design handoff or explicit routing decision with repository evidence, unresolved decisions and honest verification status."
+  },
+  {
+    "id": "designing-user-experiences-3",
+    "plugin": "ai-dev-team",
+    "skill": "designing-user-experiences",
+    "scenario": "blocked",
+    "query": "Diseña perfil pero aún no sabemos qué datos devuelve la API",
+    "expected_behavior": "Identify unresolved material decision and withhold dependent implementation",
+    "forbidden_behavior": "Claiming contract freeze despite unresolved fields",
+    "evidence_required": "Design handoff or explicit routing decision with repository evidence, unresolved decisions and honest verification status."
+  },
+  {
+    "id": "designing-user-experiences-4",
+    "plugin": "ai-dev-team",
+    "skill": "designing-user-experiences",
+    "scenario": "no-browser",
+    "query": "Revisa visualmente la pantalla sin acceso a navegador ni capturas",
+    "expected_behavior": "Mark visual review NOT RUN and provide testable criteria",
+    "forbidden_behavior": "Claiming visual verification",
+    "evidence_required": "Design handoff or explicit routing decision with repository evidence, unresolved decisions and honest verification status."
+  }
+]
