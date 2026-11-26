@@ -28,6 +28,9 @@ jobs:
       - name: Run validator test suite
         run: python tests/test_validate.py -v
 
+      - name: Run offline runtime evidence tests
+        run: python -m unittest discover -s tests -p 'test_runtime_*.py' -v
+
       - name: Sanity-check marketplace + every local plugin's manifest JSON
         run: |
           echo "Checking .claude-plugin/marketplace.json"
