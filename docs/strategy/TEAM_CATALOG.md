@@ -25,8 +25,16 @@ Orchestration: resolving-agent-conflicts, validating-agent-handoffs, executing-f
 
 Candidate packages: existing ai-dev-team plus product, design, security, quality, devops, mobile and intelligence. Keep existing skills compatible; avoid duplicate names/responsibilities. Each package must pass isolated installation, schema and safety checks.
 
+## Additional candidate skills
+- `reviewing-data-models` — schema invariants and lifecycle review, distinct from migration execution.
+- `testing-resilience` — fault injection in disposable environments, distinct from load testing.
+- `reviewing-integration-reliability` — retries, idempotency and webhook delivery semantics.
+- `evaluating-release-evidence` — provenance and independent evidence reconciliation; prefer an extension to preparing-releases unless distinct scope is proven.
+
+These are candidates, not a commitment to create new skills. Review overlap with the existing 14 skills before admission.
+
 ## Team templates
-Full stack: architecture, design, frontend, backend, database, QA and security. MVP: product, design, implementation and release. Enterprise: architecture, integration, security and compliance. Mobile: design, mobile, QA. AI: AI engineer, backend, security and eval. DevOps: CI, cloud, SRE. Maintenance: explorer, debugger, reviewer and QA. Activate only roles required by the task graph.
+Full stack: architecture, design, frontend, backend, database, QA and security. MVP: product, design, implementation and release. Enterprise: architecture, integration, security and compliance. Mobile: design, mobile, QA. AI: AI engineer, backend, security and eval. DevOps: CI, cloud, SRE. Maintenance: explorer, debugger, reviewer and QA. Security: security reviewer, AppSec, privacy and supply-chain specialists. Activate only roles required by the task graph.
 
 ## Admission gate
 Role charter, tools and permissions, input/output contract, mapped skill, safety baseline, at least three skill scenarios, conflict ownership tests, measured token overhead and independent review. No agent count is a release criterion. Preserve #30–34 sequencing.
