@@ -1,9 +1,34 @@
+<div align="center">
+
 # AI Dev Team Marketplace
 
-[![Validate marketplace](https://github.com/JavierQuinan/ai-dev-team-marketplace/actions/workflows/validate.yml/badge.svg)](https://github.com/JavierQuinan/ai-dev-team-marketplace/actions/workflows/validate.yml)
-[![Latest release](https://img.shields.io/github/v/release/JavierQuinan/ai-dev-team-marketplace?display_name=tag&sort=semver)](https://github.com/JavierQuinan/ai-dev-team-marketplace/releases/latest)
-[![License](https://img.shields.io/badge/license-Apache--2.0-0f766e)](LICENSE)
-[![Help wanted](https://img.shields.io/github/issues-search/JavierQuinan/ai-dev-team-marketplace?query=is%3Aopen%20label%3A%22help%20wanted%22&label=help%20wanted)](https://github.com/JavierQuinan/ai-dev-team-marketplace/issues?q=is%3Aopen+label%3A%22help+wanted%22)
+**Build, test, secure and maintain software with a specialized AI engineering team.**
+
+[![Release](https://img.shields.io/github/v/release/JavierQuinan/ai-dev-team-marketplace)](https://github.com/JavierQuinan/ai-dev-team-marketplace/releases)
+[![Validation](https://github.com/JavierQuinan/ai-dev-team-marketplace/actions/workflows/validate.yml/badge.svg)](https://github.com/JavierQuinan/ai-dev-team-marketplace/actions/workflows/validate.yml)
+[![License](https://img.shields.io/github/license/JavierQuinan/ai-dev-team-marketplace)](LICENSE)
+[![Stars](https://img.shields.io/github/stars/JavierQuinan/ai-dev-team-marketplace?style=flat)](https://github.com/JavierQuinan/ai-dev-team-marketplace/stargazers)
+[![Issues](https://img.shields.io/github/issues/JavierQuinan/ai-dev-team-marketplace)](https://github.com/JavierQuinan/ai-dev-team-marketplace/issues)
+
+[Quick start](#try-it-in-60-seconds) · [Architecture](#architecture) · [Team](#whats-in-ai-dev-team-v021) · [Roadmap](ROADMAP.md) · [Contribute](CONTRIBUTING.md)
+
+</div>
+
+> **Current scope:** native Claude Code plugin, 14 public skills and 10 agents documented for v0.2.1. Expanded teams and provider portability are roadmap items, not shipped functionality.
+
+## Ecosystem
+
+```mermaid
+flowchart LR
+  U[Developer] --> M[Marketplace plugin]
+  M -. planned integration .-> C[Core contracts]
+  C -. planned .-> A[Provider adapters]
+  M --> V[Validation and eval definitions]
+```
+
+The marketplace remains the open-source entry point for installable agents, skills, workflows and team templates. [AI Dev Team Core](https://github.com/JavierQuinan/ai-dev-team-core) is the separate public foundation for portable contracts. Existing plugin installations remain self-contained. Provider portability is planned and must pass conformance tests before support is claimed.
+
+Read the [ecosystem architecture and roadmap](docs/strategy/ECOSYSTEM.md) and [proposed team catalog](docs/strategy/TEAM_CATALOG.md). 
 
 Open-source marketplace of reusable AI software-development skills, agents, and workflows for [Claude Code](https://code.claude.com/docs). It packages a full, stack-agnostic "AI software development team" — architecture, implementation, debugging, testing, security review, code review, and release preparation — as a versioned Claude Code plugin any repository can install.
 
