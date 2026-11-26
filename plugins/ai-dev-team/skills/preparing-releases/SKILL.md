@@ -46,3 +46,6 @@ Never issue GO because most checks passed — a single unresolved BLOCKER is a N
 - Verdict (GO/CONDITIONAL GO/NO-GO) is stated explicitly with the checklist results that produced it.
 - No item is marked passed without having actually been run in this session.
 - Production deployment itself is never performed by this skill without separate explicit confirmation.
+
+## Coordinated delivery evidence
+Use [delivery evidence](../../references/delivery-evidence.md) and the quality-loop ledger. A failed, stale, blocked or unexecuted mandatory check is NO-GO; conditional readiness is only for optional residual risk.
