@@ -1,0 +1,3 @@
+# Backend engineering patterns
+
+Use only for evidenced backend scope. Inspect framework, validation, authorization, transactions, queues and conventions before proposing changes. Preserve directional API compatibility and explicit contract freeze. Validate at trust boundaries; derive tenant identity from authenticated context; use idempotency and bounded retries for side effects; avoid logging secrets. For queues, define retry/dead-letter behavior and ownership; for caching, define invalidation and tenant-scoped keys. Report observed tests, not inferred success. Do not introduce infrastructure merely because a pattern is listed.
